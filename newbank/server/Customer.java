@@ -5,9 +5,15 @@ import java.util.ArrayList;
 public class Customer {
 	
 	private ArrayList<Account> accounts;
+	private String password;
 	
-	public Customer() {
+	public Customer(String password) {
 		accounts = new ArrayList<>();
+		this.password = password;
+	}
+
+	public String getPassword() {
+		return password;
 	}
 	
 	public String accountsToString() {
