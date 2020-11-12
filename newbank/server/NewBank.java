@@ -15,6 +15,7 @@ public class NewBank {
 	private void addTestData() {
 		Customer bhagy = new Customer();
 		bhagy.addAccount(new Account("Main", 1000.0));
+		bhagy.addAccount(new Account("Savings", 2000.0));
 		customers.put("Bhagy", bhagy);
 		
 		Customer christina = new Customer();
@@ -40,6 +41,10 @@ public class NewBank {
 	// commands from the NewBank customer are processed in this method
 	public synchronized String processRequest(CustomerID customer, String request) {
 		if(customers.containsKey(customer.getKey())) {
+			if(request.startsWith("MOVE")) {
+				return moveMoney(customer, request);
+			}
+			
 			switch(request) {
 			case "SHOWMYACCOUNTS" : return showMyAccounts(customer);
 			default : return "FAIL";
@@ -50,6 +55,16 @@ public class NewBank {
 	
 	private String showMyAccounts(CustomerID customer) {
 		return (customers.get(customer.getKey())).accountsToString();
+	}
+	
+	private String moveMoney(CustomerID customer, String request) {
+		String[] movecommand = request.split(" ");
+		
+		String From = movecommand[2];
+		String To = movecommand[3];
+		Double Amount = Double.parseDouble(movecommand[1]);
+				
+		return (customers.get(customer.getKey())).moveMoney(From, To, Amount);
 	}
 
 }
