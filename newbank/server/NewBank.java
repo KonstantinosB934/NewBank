@@ -44,8 +44,8 @@ public class NewBank {
 	public synchronized String processRequest(CustomerID customer, String request) {
 		if(customers.containsKey(customer.getKey())) {
 			switch(request) {
-			case "SHOWMYACCOUNTS" : return showMyAccounts(customer);
-			default : return "FAIL";
+				case "SHOWMYACCOUNTS" : return showMyAccounts(customer);
+				default : return "FAIL";
 			}
 		}
 		return "FAIL";

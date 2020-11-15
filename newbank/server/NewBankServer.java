@@ -14,7 +14,7 @@ public class NewBankServer extends Thread{
 	
 	public void run() {
 		// starts up a new client handler thread to receive incoming connections and process requests
-		System.out.println("New Bank Server listening on " + server.getLocalPort());
+
 		try {
 			while(true) {
 				Socket s = server.accept();
@@ -23,8 +23,7 @@ public class NewBankServer extends Thread{
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				server.close();
 			} catch (IOException e) {
