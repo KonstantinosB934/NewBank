@@ -1,19 +1,27 @@
-This document details the protocol for interacting with the NewBank server.  
-
-A customer enters the command below and sees the messages returned 
+This document details the protocol for interacting with the NewBank server.
+A customer or employee enters the command below and sees the messages returned.
 
 SHOWMYACCOUNTS
-Returns a list of all the customers accounts along with their current balance 
-e.g. Main: 1000.0 
+Returns a list of all the customers accounts along with their current balance.
+Command: SHOWMYACCOUNTS
+Output example: Main: 1000.0 
 
-NEWACCOUNT <Name>
-e.g. NEWACCOUNT Savings
-Returns SUCCESS or FAIL
+NEWACCOUNT
+Allows a customer to create a new account.
+Command: NEWACCOUNT <NewAccountName>
+Returns: SUCCESS or FAIL
 
-MOVE <Amount> <From> <To>
-e.g. MOVE 100 Main Savings 
-Returns SUCCESS or FAIL
+MOVE
+Allows a customer to move money between the own accounts.
+Command: MOVE <Amount> <SourceCustomerAccount> <DestinationCustomerAccount>
+Returns: SUCCESS or FAIL
 
-PAY <Person/Company> <Ammount>
-e.g. PAY John 100
-Returns SUCCESS or FAIL
+UPDATEPASSWORD
+Allows a customer to change his/her customer password. 
+Command: UPDATEPASSWORD <NewPassword>
+Returns: SUCCESS or FAIL
+
+PAY
+Allows a customer to transfer money outside his/her accounts. 
+Command: PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>
+Returns: SUCCESS or FAIL
