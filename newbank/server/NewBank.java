@@ -18,7 +18,7 @@ public class NewBank {
 		bhagy.addAccount(new Account("Savings", 2000.0));
 		customers.put("Bhagy", bhagy);
 
-		
+
 		Customer christina = new Customer("555");
 		christina.addAccount(new Account("Savings", 1500.0));
 		customers.put("Christina", christina);
@@ -32,7 +32,7 @@ public class NewBank {
 		return bank;
 	}
 
-	
+
 	public synchronized CustomerID checkLogInDetails(String userName, String password) {
 		if(customers.containsKey(userName)) {
 			Customer customer = customers.get(userName);
@@ -61,7 +61,6 @@ public class NewBank {
 
 			switch(request) {
 			case "SHOWMYACCOUNTS" : return showMyAccounts(customer);
-
 			default : return "FAIL";
 			}
 		}
@@ -71,14 +70,14 @@ public class NewBank {
 	private String showMyAccounts(CustomerID customer) {
 		return (customers.get(customer.getKey())).accountsToString();
 	}
-	
+
 	private String moveMoney(CustomerID customer, String request) {
 		String[] movecommand = request.split(" ");
-		
+
 		String From = movecommand[2];
 		String To = movecommand[3];
 		Double Amount = Double.parseDouble(movecommand[1]);
-				
+
 		return (customers.get(customer.getKey())).moveMoney(From, To, Amount);
 	}
 
