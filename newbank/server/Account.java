@@ -23,7 +23,7 @@ public class Account {
 	public void setBalance(double newBalance) {
 		currentBalance = newBalance;
 	}
-
+	
 	public String getName() {
 		return accountName;
 	}

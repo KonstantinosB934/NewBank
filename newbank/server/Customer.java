@@ -66,4 +66,23 @@ public class Customer {
 		}
 		return "FAIL";
 	}
+	
+	public void getBalance(Account account) {
+		account.getBalance();
+	}
+	
+	public String moveMoney(String From, String To, Double Amount) {
+		for(Account F : accounts) {
+			if(F.getName().equals(From)) {
+				for(Account T : accounts) {
+					if(T.getName().equals(To)) {
+						F.setBalance(F.getBalance()-Amount);
+						T.setBalance(T.getBalance()+Amount);
+						return "SUCCESS";
+					}
+				}
+			}
+		}
+		return "FAIL";
+	}
 }

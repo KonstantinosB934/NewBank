@@ -59,7 +59,6 @@ public class NewBank {
 				return createAcc(customer, request);
 			}
 
-
 			switch(request) {
 			case "SHOWMYACCOUNTS" : return showMyAccounts(customer);
 
@@ -71,6 +70,16 @@ public class NewBank {
 	
 	private String showMyAccounts(CustomerID customer) {
 		return (customers.get(customer.getKey())).accountsToString();
+	}
+	
+	private String moveMoney(CustomerID customer, String request) {
+		String[] movecommand = request.split(" ");
+		
+		String From = movecommand[2];
+		String To = movecommand[3];
+		Double Amount = Double.parseDouble(movecommand[1]);
+				
+		return (customers.get(customer.getKey())).moveMoney(From, To, Amount);
 	}
 
 	private String moveMoney(CustomerID customer, String request) {
