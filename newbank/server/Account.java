@@ -13,13 +13,13 @@ public class Account {
 	}
 	
 	public String toString() {
-		return (accountName + ": " + currentBalance);
+		return (accountName + ": " + currentBalance+"\n");
 	}
-	
+
 	public double getBalance() {
 		return currentBalance;
 	}
-	
+
 	public void setBalance(double newBalance) {
 		currentBalance = newBalance;
 	}
@@ -29,3 +29,5 @@ public class Account {
 	}
 
 }
+
+
