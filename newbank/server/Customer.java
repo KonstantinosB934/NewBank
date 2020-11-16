@@ -20,6 +20,7 @@ public class Customer {
 		String s = "";
 		for(Account a : accounts) {
 			s += a.toString();
+			s += "\n";
 		}
 		return s;
 	}
