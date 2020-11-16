@@ -81,16 +81,6 @@ public class NewBank {
 		return (customers.get(customer.getKey())).moveMoney(From, To, Amount);
 	}
 
-	private String moveMoney(CustomerID customer, String request) {
-		String[] movecommand = request.split(" ");
-
-		String From = movecommand[2];
-		String To = movecommand[3];
-		Double Amount = Double.parseDouble(movecommand[1]);
-
-		return (customers.get(customer.getKey())).moveMoney(From, To, Amount);
-	}
-
 	private String update(CustomerID customer, String request){
 		String[] updateCommand = request.split(" ");
 
