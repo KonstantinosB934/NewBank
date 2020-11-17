@@ -2,22 +2,23 @@ package newbank.server;
 
 import java.util.ArrayList;
 
-public class Customer {
+public class Customer extends User {
 	
 	private ArrayList<Account> accounts;
-	private String password;
 	private String passwordUpdate;
 
-
 	public Customer(String password){
+		super(password);
 		accounts = new ArrayList<>();
-		this.password = password;
 		this.passwordUpdate = password;
 	}
+
+	@Override
 	public String getPassword(){
 		return passwordUpdate;
 	}
 
+	@Override
 	public void setPassword(String newPassword){
 		passwordUpdate = newPassword;
 	}

@@ -5,10 +5,10 @@ import java.util.HashMap;
 public class NewBank {
 	
 	private static final NewBank bank = new NewBank();
-	private HashMap<String,Customer> customers;
+	private HashMap<String,User> users;
 	
 	private NewBank() {
-		customers = new HashMap<>();
+		users = new HashMap<>();
 		addTestData();
 	}
 	
@@ -16,16 +16,19 @@ public class NewBank {
 		Customer bhagy = new Customer("123");
 		bhagy.addAccount(new Account("Main", 1000.0));
 		bhagy.addAccount(new Account("Savings", 2000.0));
-		customers.put("Bhagy", bhagy);
+		users.put("Bhagy", bhagy);
 
 
 		Customer christina = new Customer("555");
 		christina.addAccount(new Account("Savings", 1500.0));
-		customers.put("Christina", christina);
+		users.put("Christina", christina);
 
 		Customer john = new Customer("101");
 		john.addAccount(new Account("Checking", 250.0));
-		customers.put("John", john);
+		users.put("John", john);
+
+		BankEmployee max = new BankEmployee("123456");
+		users.put("Max", max);
 	}
 	
 	public static NewBank getBank() {
@@ -33,72 +36,78 @@ public class NewBank {
 	}
 
 
-	public synchronized CustomerID checkLogInDetails(String userName, String password) {
-		if(customers.containsKey(userName)) {
-			Customer customer = customers.get(userName);
-			if(customer.getPassword().equals(password)){
-				return new CustomerID(userName);
+	public synchronized UserID checkLogInDetails(String userName, String password) {
+		if(users.containsKey(userName)) {
+			User user = users.get(userName);
+			if(user.getPassword().equals(password)){
+				return new UserID(userName);
 			}
 		}
 		return null;
 	}
 
-	// commands from the NewBank customer are processed in this method
-	public synchronized String processRequest(CustomerID customer, String request) {
-		if(customers.containsKey(customer.getKey())) {
+	// commands from the NewBank user are processed in this method
+	public synchronized String processRequest(UserID userId, String request) {
+		if(users.containsKey(userId.getKey())) {
+			User user = users.get(userId.getKey());
 
-			if(request.startsWith("MOVE")) {
-				return moveMoney(customer, request);
-			}
+			if (user instanceof Customer) {
+				Customer customer = (Customer)user;
+				if (request.startsWith("MOVE")) {
+					return moveMoney(customer, request);
+				}
 
-			if(request.startsWith("UPDATE")){
-				return update(customer, request);
-			}
+				if (request.startsWith("UPDATE")) {
+					return update(customer, request);
+				}
 
-			if(request.startsWith("NEWACCOUNT")){
-				return createAcc(customer, request);
-			}
+				if (request.startsWith("NEWACCOUNT")) {
+					return createAcc(customer, request);
+				}
 
-			switch(request) {
-			case "SHOWMYACCOUNTS" : return showMyAccounts(customer);
-			default : return "FAIL";
+				switch (request) {
+					case "SHOWMYACCOUNTS":
+						return showMyAccounts(customer);
+					default:
+						return "FAIL";
+				}
+			} else if (user instanceof BankEmployee) {
+				//todo: bank employee protocol
 			}
 		}
 		return "FAIL";
 	}
 	
-	private String showMyAccounts(CustomerID customer) {
-		return (customers.get(customer.getKey())).accountsToString();
+	private String showMyAccounts(Customer customer) {
+		return customer.accountsToString();
 	}
 
-	private String moveMoney(CustomerID customer, String request) {
+	private String moveMoney(Customer customer, String request) {
 		String[] movecommand = request.split(" ");
 
 		String From = movecommand[2];
 		String To = movecommand[3];
 		Double Amount = Double.parseDouble(movecommand[1]);
 
-		return (customers.get(customer.getKey())).moveMoney(From, To, Amount);
+		return customer.moveMoney(From, To, Amount);
 	}
 
-	private String update(CustomerID customer, String request){
+	private String update(Customer customer, String request){
 		String[] updateCommand = request.split(" ");
 
 		String newPassword = updateCommand[1];
 		String confirmPassword = updateCommand[2];
 
-
-		return (customers.get(customer.getKey())).update(newPassword,confirmPassword);
+		return customer.update(newPassword,confirmPassword);
 	}
 
-	private String createAcc(CustomerID customer, String request){
+	private String createAcc(Customer customer, String request){
 		String[] createCommand = request.split(" ");
 
 		String accountName = createCommand[1];
 		double openingBalance = Double.parseDouble(createCommand[2]);
 
-
-		return(customers.get(customer.getKey())).addAccount(new Account (accountName, openingBalance));
+		return customer.addAccount(new Account (accountName, openingBalance));
 	}
 
 }
