@@ -65,4 +65,16 @@ public class Customer extends User {
 		}
 		return "FAIL";
 	}
+	
+	public String delete(String myAccount) {
+		
+		for(Account A : accounts) {
+			if(A.getName().equals(myAccount)) {
+				accounts.remove(A);
+				return "SUCCESS";
+			}
+		}
+		
+		return "FAIL";
+	}
 }
