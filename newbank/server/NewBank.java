@@ -72,7 +72,10 @@ public class NewBank {
 						return "FAIL";
 				}
 			} else if (user instanceof BankEmployee) {
-				//todo: bank employee protocol
+				BankEmployee employee = (BankEmployee)user;
+				if(request.startsWith("DELETECUSTOMER")) {
+					return deleteCustomer(request);
+				}
 			}
 		}
 		return "FAIL";
@@ -108,6 +111,25 @@ public class NewBank {
 		double openingBalance = Double.parseDouble(createCommand[2]);
 
 		return customer.addAccount(new Account (accountName, openingBalance));
+	}
+	
+	private String deleteCustomer(String request) {
+		String[] deleteCommand = request.split(" ");
+		
+		String customerName = deleteCommand[1];
+		
+		if(users.containsKey(customerName)) {
+			User user = users.get(customerName);
+			
+			if (user instanceof Customer) {
+				users.remove(customerName);
+				return "SUCCESS";
+			}else {
+				return "FAIL";
+			}
+		}else {
+			return "FAIL";
+		}
 	}
 
 }
