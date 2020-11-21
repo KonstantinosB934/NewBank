@@ -64,6 +64,10 @@ public class NewBank {
 				if (request.startsWith("NEWACCOUNT")) {
 					return createAcc(customer, request);
 				}
+				
+				if (request.startsWith("DELETEACCOUNT")) {
+					return deleteAccount(customer, request);
+				}
 
 				switch (request) {
 					case "SHOWMYACCOUNTS":
@@ -109,5 +113,11 @@ public class NewBank {
 
 		return customer.addAccount(new Account (accountName, openingBalance));
 	}
+	
+	private String deleteAccount(Customer customer, String request) {
+		String[] deleteCommand = request.split(" ");
+		String myAccount = deleteCommand[1];
 
+		return customer.delete(myAccount);
+	}
 }
