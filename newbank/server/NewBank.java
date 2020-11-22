@@ -50,23 +50,23 @@ public class NewBank {
 
 			if (user instanceof Customer) {
 				Customer customer = (Customer)user;
-				if (request.startsWith("MOVE")) {
+				if (request.startsWith("MOVE ")) {
 					return moveMoney(customer, request);
 				}
 
-				if (request.startsWith("UPDATE")) {
+				if (request.startsWith("UPDATE ")) {
 					return update(customer, request);
 				}
 
-				if (request.startsWith("NEWACCOUNT")) {
+				if (request.startsWith("NEWACCOUNT ")) {
 					return createAcc(customer, request);
 				}
 				
-				if (request.startsWith("DELETEACCOUNT")) {
+				if (request.startsWith("DELETEACCOUNT ")) {
 					return deleteAccount(customer, request);
 				}
 
-				if (request.startsWith("PAY")) {
+				if (request.startsWith("PAY ")) {
 					return payAmountToOtherCustomer(customer, request);
 				}
 
@@ -77,7 +77,7 @@ public class NewBank {
 
 			} else if (user instanceof BankEmployee) {
 				BankEmployee employee = (BankEmployee)user;
-				if(request.startsWith("DELETECUSTOMER")) {
+				if(request.startsWith("DELETECUSTOMER ")) {
 					return deleteCustomer(request);
 				}
 			}
@@ -153,10 +153,55 @@ public class NewBank {
 	 * 			returned otherwise
 	 */
 	private String payAmountToOtherCustomer(Customer customer, String request) {
-		// todo: Get all parameters from the request
-		// todo: Check if receiving customer and account exists and fail if not
-		// todo: Check if the account has sufficient funds and fail if not
-		// todo: Finally, if all is OK, then just move amount from one account into the account of the
+		String[] requestParameterArr = request.split(" ");
+		// expected request format:
+		// PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>
+		if (requestParameterArr.length != 5) {
+			return String.format(
+					"Expected the following format for the pay command:\n\n" +
+					"PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>\n\n" +
+					"but the number of parameters found after PAY is %d",
+					requestParameterArr.length - 1
+			);
+		}
+		// Check if account exists
+		String accountName = requestParameterArr[1];
+		Account account = customer.getAccount(accountName);
+		if (account == null) {
+			return String.format("Account \"%s\" was not found", accountName);
+		}
+		// Check if recipient user and accounts exist
+		String recipientName = requestParameterArr[2];
+		User recipient;
+		if (users.containsKey(recipientName)) {
+			recipient = users.get(recipientName);
+		} else {
+			return String.format("Recipient \"%s\" not identified in NewBank customer records", recipientName);
+		}
+		if (!(recipient instanceof Customer)) {
+			return String.format("Recipient \"%s\" not identified in NewBank customer records", recipientName);
+		}
+		Customer recipientCustomer = (Customer) recipient;
+		String recipientAccountName = requestParameterArr[3];
+		Account recipientAccount = recipientCustomer.getAccount(recipientAccountName);
+		if (recipientAccount == null) {
+			return String.format(
+					"Account \"%s\" was not found for customer \"%s\"", recipientAccountName, recipientName
+			);
+		}
+		// Check if there are sufficient funds
+		double amount;
+		try {
+			amount = Double.parseDouble(requestParameterArr[4]);
+		} catch (NumberFormatException ignored) {
+			return String.format("Invalid value for transfer amount: \"%s\"", requestParameterArr[4]);
+		}
+		if (amount > account.getBalance()) {
+			return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
+		}
+		// Finally if all checks are OK, the amount can be transferred
+		account.setBalance(account.getBalance() - amount);
+		recipientAccount.setBalance(recipientAccount.getBalance() + amount);
 		return "SUCCESS";
 	}
 

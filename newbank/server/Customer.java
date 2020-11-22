@@ -14,27 +14,37 @@ public class Customer extends User {
 	}
 
 	@Override
-	public String getPassword(){
-		return passwordUpdate;
-	}
+	public String getPassword(){ return passwordUpdate; }
 
 	@Override
-	public void setPassword(String newPassword){
-		passwordUpdate = newPassword;
-	}
+	public void setPassword(String newPassword){ passwordUpdate = newPassword; }
 
 	public String accountsToString() {
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		for(Account a : accounts) {
-			s += a.toString();
-			s += "\n";
+			s.append(a.toString());
+			s.append("\n");
 		}
-		return s;
+		return s.toString();
 	}
 
 	public String addAccount(Account account) {
 		accounts.add(account);
 		return "New Account successfully created.";
+	}
+
+	/**
+	 * Search for account by name and return if found.
+	 * @param accountName The account name to search for
+	 * @return The account if found, null otherwise
+	 */
+	public Account getAccount(String accountName) {
+		for (Account account : accounts) {
+			if (account.getName().equals(accountName)) {
+				return account;
+			}
+		}
+		return null;
 	}
 
 	public String update(String newPassword, String confirmPassword){
@@ -46,11 +56,7 @@ public class Customer extends User {
 
 		return "Fail, Please try again";
 	}
-	
-	public void getBalance(Account account) {
-		account.getBalance();
-	}
-	
+
 	public String moveMoney(String From, String To, Double Amount) {
 		for(Account F : accounts) {
 			if(F.getName().equals(From)) {
@@ -65,7 +71,7 @@ public class Customer extends User {
 		}
 		return "FAIL";
 	}
-	
+
 	public String delete(String myAccount) {
 		
 		for(Account A : accounts) {
@@ -74,7 +80,8 @@ public class Customer extends User {
 				return "SUCCESS";
 			}
 		}
-		
+
 		return "FAIL";
 	}
+
 }
