@@ -79,8 +79,6 @@ public class NewBank {
 				BankEmployee employee = (BankEmployee)user;
 				if(request.startsWith("DELETECUSTOMER")) {
 					return deleteCustomer(request);
-				} else if(request.startsWith("NEWCUSTOMER")) {
-					return addCustomer(request);
 				}
 			}
 		}
@@ -142,22 +140,5 @@ public class NewBank {
 		String[] deleteCommand = request.split(" ");
 		String myAccount = deleteCommand[1];
 		return customer.delete(myAccount);
-	}
-
-	private String addCustomer(String request){
-		String[] addCommand = request.split(" ");
-
-		String customerName = addCommand[1];
-		String password = addCommand[2];
-
-		if(!users.containsKey(customerName)) {
-			Customer customer = new Customer(password);
-			users.put(customerName, customer);
-
-			return "You have successfully added '" + customerName + "'";
-		}
-		else
-			return "Sorry, customer already exists";
-
 	}
 }

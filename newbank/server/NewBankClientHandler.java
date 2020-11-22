@@ -36,14 +36,7 @@ public class NewBankClientHandler extends Thread{
 				while(true) {
 					String request = in.readLine();
 					System.out.println("Request from " + customer.getKey());
-					String response = "";
-
-					try {
-						response = bank.processRequest(customer, request);
-					} catch (RuntimeException rte) {
-						response = "Error while processing the command. Please check the protocol documentation for the syntax.";
-					}
-
+					String response = bank.processRequest(customer, request);
 					out.println(response);
 				}
 			}
