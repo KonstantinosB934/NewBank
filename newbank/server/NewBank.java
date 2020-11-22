@@ -76,7 +76,12 @@ public class NewBank {
 						return "FAIL";
 				}
 			} else if (user instanceof BankEmployee) {
-				//todo: bank employee protocol
+				BankEmployee employee = (BankEmployee)user;
+				if(request.startsWith("DELETECUSTOMER")) {
+					return deleteCustomer(request);
+				} else if(request.startsWith("NEWCUSTOMER")) {
+					return addCustomer(request);
+				}
 			}
 		}
 		return "FAIL";
@@ -114,10 +119,45 @@ public class NewBank {
 		return customer.addAccount(new Account (accountName, openingBalance));
 	}
 	
+	private String deleteCustomer(String request) {
+		String[] deleteCommand = request.split(" ");
+		
+		String customerName = deleteCommand[1];
+		
+		if(users.containsKey(customerName)) {
+			User user = users.get(customerName);
+			
+			if (user instanceof Customer) {
+				users.remove(customerName);
+				return "SUCCESS";
+			}else {
+				return "FAIL";
+			}
+		}else {
+			return "FAIL";
+		}
+	}
+  
 	private String deleteAccount(Customer customer, String request) {
 		String[] deleteCommand = request.split(" ");
 		String myAccount = deleteCommand[1];
-
 		return customer.delete(myAccount);
+	}
+
+	private String addCustomer(String request){
+		String[] addCommand = request.split(" ");
+
+		String customerName = addCommand[1];
+		String password = addCommand[2];
+
+		if(!users.containsKey(customerName)) {
+			Customer customer = new Customer(password);
+			users.put(customerName, customer);
+
+			return "You have successfully added '" + customerName + "'";
+		}
+		else
+			return "Sorry, customer already exists";
+
 	}
 }
