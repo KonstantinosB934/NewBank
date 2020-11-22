@@ -72,6 +72,7 @@ public class NewBank {
 				}
 
 			} else if (user instanceof BankEmployee) {
+				BankEmployee employee = (BankEmployee)user;
 				if(request.startsWith("NEWCUSTOMER")) {
 					return addCustomer(request);
 				}
