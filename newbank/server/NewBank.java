@@ -3,21 +3,20 @@ package newbank.server;
 import java.util.HashMap;
 
 public class NewBank {
-	
+
 	private static final NewBank bank = new NewBank();
-	private HashMap<String,User> users;
-	
+	private final HashMap<String,User> users;
+
 	private NewBank() {
 		users = new HashMap<>();
 		addTestData();
 	}
-	
+
 	private void addTestData() {
 		Customer bhagy = new Customer("123");
 		bhagy.addAccount(new Account("Main", 1000.0));
 		bhagy.addAccount(new Account("Savings", 2000.0));
 		users.put("Bhagy", bhagy);
-
 
 		Customer christina = new Customer("555");
 		christina.addAccount(new Account("Savings", 1500.0));
@@ -31,9 +30,7 @@ public class NewBank {
 		users.put("Max", max);
 	}
 	
-	public static NewBank getBank() {
-		return bank;
-	}
+	public static NewBank getBank() { return bank; }
 
 
 	public synchronized UserID checkLogInDetails(String userName, String password) {
@@ -69,12 +66,15 @@ public class NewBank {
 					return deleteAccount(customer, request);
 				}
 
-				switch (request) {
-					case "SHOWMYACCOUNTS":
-						return showMyAccounts(customer);
-					default:
-						return "FAIL";
+				if (request.startsWith("PAY")) {
+					return payAmountToOtherCustomer(customer, request);
 				}
+
+				if ("SHOWMYACCOUNTS".equals(request)) {
+					return showMyAccounts(customer);
+				}
+				return "FAIL";
+
 			} else if (user instanceof BankEmployee) {
 				BankEmployee employee = (BankEmployee)user;
 				if(request.startsWith("DELETECUSTOMER")) {
@@ -84,7 +84,7 @@ public class NewBank {
 		}
 		return "FAIL";
 	}
-	
+
 	private String showMyAccounts(Customer customer) {
 		return customer.accountsToString();
 	}
@@ -141,4 +141,23 @@ public class NewBank {
 		String myAccount = deleteCommand[1];
 		return customer.delete(myAccount);
 	}
+
+	/**
+	 * Pay an amount to another customer of the bank. The outgoing account should be specified and
+	 * if the receiving customer or account cannot be identified or if there are no sufficient funds,
+	 * then the request should be rejected
+	 *
+	 * @param customer	The customer that the pay amount is paid from
+	 * @param request	The pay request as recorded from the CLI interface
+	 * @return 	"SUCCESS" if the pay request has been completed successfully. An error message will be
+	 * 			returned otherwise
+	 */
+	private String payAmountToOtherCustomer(Customer customer, String request) {
+		// todo: Get all parameters from the request
+		// todo: Check if receiving customer and account exists and fail if not
+		// todo: Check if the account has sufficient funds and fail if not
+		// todo: Finally, if all is OK, then just move amount from one account into the account of the
+		return "SUCCESS";
+	}
+
 }
