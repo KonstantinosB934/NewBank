@@ -7,11 +7,6 @@ public class Customer extends User {
 	private ArrayList<Account> accounts;
 	private String passwordUpdate;
 
-	private String foreName;
-	private String lastName;
-	private String address;
-	private String dateOfBirth;
-
 	public Customer(String password){
 		super(password);
 		accounts = new ArrayList<>();
@@ -35,38 +30,6 @@ public class Customer extends User {
 	@Override
 	public void setPassword(String newPassword){
 		passwordUpdate = newPassword;
-	}
-
-	public String getForeName() {
-		return foreName;
-	}
-
-	public void setForeName(String foreName) {
-		this.foreName = foreName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public String getDateOfBirth() {
-		return dateOfBirth;
-	}
-
-	public void setDateOfBirth(String dateOfBirth) {
-		this.dateOfBirth = dateOfBirth;
 	}
 
 	public String accountsToString() {
