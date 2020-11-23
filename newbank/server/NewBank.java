@@ -52,6 +52,7 @@ public class NewBank {
 			User user = users.get(userId.getKey());
 
 			if (user instanceof Customer) {
+				//all customer related protocols
 				Customer customer = (Customer)user;
 				if (request.startsWith("MOVE")) {
 					return moveMoney(customer, request);
@@ -76,6 +77,7 @@ public class NewBank {
 						return "FAIL";
 				}
 			} else if (user instanceof BankEmployee) {
+				//all bank employee related protocols
 				BankEmployee employee = (BankEmployee)user;
 				if(request.startsWith("DELETECUSTOMER")) {
 					return deleteCustomer(request);
