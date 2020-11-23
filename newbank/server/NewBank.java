@@ -49,6 +49,7 @@ public class NewBank {
 			User user = users.get(userId.getKey());
 
 			if (user instanceof Customer) {
+				//all customer related protocols
 				Customer customer = (Customer)user;
 				if (request.startsWith("MOVE ")) {
 					return moveMoney(customer, request);
@@ -76,9 +77,12 @@ public class NewBank {
 				return "FAIL";
 
 			} else if (user instanceof BankEmployee) {
+				//all bank employee related protocols
 				BankEmployee employee = (BankEmployee)user;
 				if(request.startsWith("DELETECUSTOMER ")) {
 					return deleteCustomer(request);
+				} else if(request.startsWith("NEWCUSTOMER")) {
+					return addCustomer(request);
 				}
 			}
 		}
@@ -116,7 +120,7 @@ public class NewBank {
 
 		return customer.addAccount(new Account (accountName, openingBalance));
 	}
-	
+
 	private String deleteCustomer(String request) {
 		String[] deleteCommand = request.split(" ");
 		
@@ -135,7 +139,7 @@ public class NewBank {
 			return "FAIL";
 		}
 	}
-  
+
 	private String deleteAccount(Customer customer, String request) {
 		String[] deleteCommand = request.split(" ");
 		String myAccount = deleteCommand[1];
@@ -203,6 +207,23 @@ public class NewBank {
 		account.setBalance(account.getBalance() - amount);
 		recipientAccount.setBalance(recipientAccount.getBalance() + amount);
 		return "SUCCESS";
+	}
+
+	private String addCustomer(String request){
+		String[] addCommand = request.split(" ");
+
+		String customerName = addCommand[1];
+		String password = addCommand[2];
+
+		if(!users.containsKey(customerName)) {
+			Customer customer = new Customer(password);
+			users.put(customerName, customer);
+
+			return "You have successfully added '" + customerName + "'";
+		}
+		else
+			return "Sorry, customer already exists";
+
 	}
 
 }
