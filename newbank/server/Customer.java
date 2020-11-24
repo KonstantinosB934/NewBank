@@ -1,5 +1,9 @@
 package newbank.server;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class Customer extends User {
@@ -27,7 +31,6 @@ public class Customer extends User {
 		String s = "";
 		for(Account a : accounts) {
 			s += a.toString();
-			s += "\n";
 		}
 		return s;
 	}
@@ -38,7 +41,6 @@ public class Customer extends User {
 	}
 
 	public String update(String newPassword, String confirmPassword){
-
 			if(newPassword.matches(confirmPassword)){
 				setPassword(newPassword);
 				return "Your password has been successfully updated";
@@ -76,5 +78,12 @@ public class Customer extends User {
 		}
 		
 		return "FAIL";
+	}
+
+	@Override
+	public String toString() {
+		return  "Your details are :" + "\n" + getFirstName() + " " + getLastName() + " " +
+				"Billing Address: " + " " + billingAddress +
+				"Delivery Address: " + " " + deliveryAddress;
 	}
 }
