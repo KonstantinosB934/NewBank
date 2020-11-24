@@ -3,21 +3,20 @@ package newbank.server;
 import java.util.HashMap;
 
 public class NewBank {
-	
+
 	private static final NewBank bank = new NewBank();
-	private HashMap<String,User> users;
-	
+	private final HashMap<String,User> users;
+
 	private NewBank() {
 		users = new HashMap<>();
 		addTestData();
 	}
-	
+
 	private void addTestData() {
 		Customer bhagy = new Customer("123");
 		bhagy.addAccount(new Account("Main", 1000.0));
 		bhagy.addAccount(new Account("Savings", 2000.0));
 		users.put("Bhagy", bhagy);
-
 
 		Customer christina = new Customer("555");
 		christina.addAccount(new Account("Savings", 1500.0));
@@ -31,9 +30,7 @@ public class NewBank {
 		users.put("Max", max);
 	}
 	
-	public static NewBank getBank() {
-		return bank;
-	}
+	public static NewBank getBank() { return bank; }
 
 
 	public synchronized UserID checkLogInDetails(String userName, String password) {
@@ -54,32 +51,35 @@ public class NewBank {
 			if (user instanceof Customer) {
 				//all customer related protocols
 				Customer customer = (Customer)user;
-				if (request.startsWith("MOVE")) {
+				if (request.startsWith("MOVE ")) {
 					return moveMoney(customer, request);
 				}
 
-				if (request.startsWith("UPDATE")) {
+				if (request.startsWith("UPDATE ")) {
 					return update(customer, request);
 				}
 
-				if (request.startsWith("NEWACCOUNT")) {
+				if (request.startsWith("NEWACCOUNT ")) {
 					return createAcc(customer, request);
 				}
 				
-				if (request.startsWith("DELETEACCOUNT")) {
+				if (request.startsWith("DELETEACCOUNT ")) {
 					return deleteAccount(customer, request);
 				}
 
-				switch (request) {
-					case "SHOWMYACCOUNTS":
-						return showMyAccounts(customer);
-					default:
-						return "FAIL";
+				if (request.startsWith("PAY ")) {
+					return payAmountToOtherCustomer(customer, request);
 				}
+
+				if ("SHOWMYACCOUNTS".equals(request)) {
+					return showMyAccounts(customer);
+				}
+				return "FAIL";
+
 			} else if (user instanceof BankEmployee) {
 				//all bank employee related protocols
 				BankEmployee employee = (BankEmployee)user;
-				if(request.startsWith("DELETECUSTOMER")) {
+				if(request.startsWith("DELETECUSTOMER ")) {
 					return deleteCustomer(request);
 				} else if(request.startsWith("NEWCUSTOMER")) {
 					return addCustomer(request);
@@ -88,7 +88,7 @@ public class NewBank {
 		}
 		return "FAIL";
 	}
-	
+
 	private String showMyAccounts(Customer customer) {
 		return customer.accountsToString();
 	}
@@ -120,7 +120,7 @@ public class NewBank {
 
 		return customer.addAccount(new Account (accountName, openingBalance));
 	}
-	
+
 	private String deleteCustomer(String request) {
 		String[] deleteCommand = request.split(" ");
 		
@@ -139,11 +139,74 @@ public class NewBank {
 			return "FAIL";
 		}
 	}
-  
+
 	private String deleteAccount(Customer customer, String request) {
 		String[] deleteCommand = request.split(" ");
 		String myAccount = deleteCommand[1];
 		return customer.delete(myAccount);
+	}
+
+	/**
+	 * Pay an amount to another customer of the bank. The outgoing account should be specified and
+	 * if the receiving customer or account cannot be identified or if there are no sufficient funds,
+	 * then the request should be rejected
+	 *
+	 * @param customer	The customer that the pay amount is paid from
+	 * @param request	The pay request as recorded from the CLI interface
+	 * @return 	"SUCCESS" if the pay request has been completed successfully. An error message will be
+	 * 			returned otherwise
+	 */
+	private String payAmountToOtherCustomer(Customer customer, String request) {
+		String[] requestParameterArr = request.split(" ");
+		// expected request format:
+		// PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>
+		if (requestParameterArr.length != 5) {
+			return String.format(
+					"Expected the following format for the pay command:\n\n" +
+					"PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>\n\n" +
+					"but the number of parameters found after PAY is %d",
+					requestParameterArr.length - 1
+			);
+		}
+		// Check if account exists
+		String accountName = requestParameterArr[1];
+		Account account = customer.getAccount(accountName);
+		if (account == null) {
+			return String.format("Account \"%s\" was not found", accountName);
+		}
+		// Check if recipient user and accounts exist
+		String recipientName = requestParameterArr[2];
+		User recipient;
+		if (users.containsKey(recipientName)) {
+			recipient = users.get(recipientName);
+		} else {
+			return String.format("Recipient \"%s\" not identified in NewBank customer records", recipientName);
+		}
+		if (!(recipient instanceof Customer)) {
+			return String.format("Recipient \"%s\" not identified in NewBank customer records", recipientName);
+		}
+		Customer recipientCustomer = (Customer) recipient;
+		String recipientAccountName = requestParameterArr[3];
+		Account recipientAccount = recipientCustomer.getAccount(recipientAccountName);
+		if (recipientAccount == null) {
+			return String.format(
+					"Account \"%s\" was not found for customer \"%s\"", recipientAccountName, recipientName
+			);
+		}
+		// Check if there are sufficient funds
+		double amount;
+		try {
+			amount = Double.parseDouble(requestParameterArr[4]);
+		} catch (NumberFormatException ignored) {
+			return String.format("Invalid value for transfer amount: \"%s\"", requestParameterArr[4]);
+		}
+		if (amount > account.getBalance()) {
+			return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
+		}
+		// Finally if all checks are OK, the amount can be transferred
+		account.setBalance(account.getBalance() - amount);
+		recipientAccount.setBalance(recipientAccount.getBalance() + amount);
+		return "SUCCESS";
 	}
 
 	private String addCustomer(String request){
@@ -162,4 +225,5 @@ public class NewBank {
 			return "Sorry, customer already exists";
 
 	}
+
 }
