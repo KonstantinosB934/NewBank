@@ -1,9 +1,5 @@
 package newbank.server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class Customer extends User {
@@ -11,8 +7,17 @@ public class Customer extends User {
 	private ArrayList<Account> accounts;
 	private String passwordUpdate;
 
+	private String billingAddress;
+	private String deliveryAddress;
+
 	public Customer(String password){
 		super(password);
+		accounts = new ArrayList<>();
+		this.passwordUpdate = password;
+	}
+
+	public Customer(String password, String firstName, String lastName){
+		super(password, firstName, lastName);
 		accounts = new ArrayList<>();
 		this.passwordUpdate = password;
 	}
@@ -22,6 +27,22 @@ public class Customer extends User {
 
 	@Override
 	public void setPassword(String newPassword){ passwordUpdate = newPassword; }
+
+	public String getBillingAddress() {
+		return billingAddress;
+	}
+
+	public void setBillingAddress(String billingAddress) {
+		this.billingAddress = billingAddress;
+	}
+
+	public String getDeliveryAddress() {
+		return deliveryAddress;
+	}
+
+	public void setDeliveryAddress(String deliveryAddress) {
+		this.deliveryAddress = deliveryAddress;
+	}
 
 	public String accountsToString() {
 		StringBuilder s = new StringBuilder();

@@ -13,20 +13,20 @@ public class NewBank {
 	}
 
 	private void addTestData() {
-		Customer bhagy = new Customer("123");
+		Customer bhagy = new Customer("123", "Bhagyashree", "Patil");
 		bhagy.addAccount(new Account("Main", 1000.0));
 		bhagy.addAccount(new Account("Savings", 2000.0));
 		users.put("Bhagy", bhagy);
 
-		Customer christina = new Customer("555");
+		Customer christina = new Customer("555", "Christina", "Keating");
 		christina.addAccount(new Account("Savings", 1500.0));
 		users.put("Christina", christina);
 
-		Customer john = new Customer("101");
+		Customer john = new Customer("101", "John", "Benardis");
 		john.addAccount(new Account("Checking", 250.0));
 		users.put("John", john);
 
-		BankEmployee max = new BankEmployee("123456");
+		BankEmployee max = new BankEmployee("123456", "Max", "Powers");
 		users.put("Max", max);
 	}
 	

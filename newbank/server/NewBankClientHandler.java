@@ -21,34 +21,35 @@ public class NewBankClientHandler extends Thread{
 	public void run() {
 		// keep getting requests from the client and processing them
 		try {
-			// ask for user name
-			out.println("Enter Username");
-			String userName = in.readLine();
-			// ask for password
-			out.println("Enter Password");
-			String password = in.readLine();
-			out.println("Checking Details...");
-			// authenticate user and get customer ID token from bank for use in subsequent requests
-			UserID customer = bank.checkLogInDetails(userName, password);
-			// if the user is authenticated then get requests from the user and process them 
-			if(customer != null) {
-				out.println("Log In Successful");
-				while(true) {
-					out.println("What do you want to do? (EXIT to exit)");
-					String request = in.readLine();
-					if(request.trim().equalsIgnoreCase("exit")) {
-						break;
-					} else if(request.trim().isEmpty()) {
-						continue;
-					} else {
-						System.out.println("Request from " + customer.getKey());
-						String response = bank.processRequest(customer, request, in, out);
-						out.println(response);
+			while (true) {
+				// ask for user name
+				out.println("Enter Username");
+				String userName = in.readLine();
+				// ask for password
+				out.println("Enter Password");
+				String password = in.readLine();
+				out.println("Checking Details...");
+				// authenticate user and get user ID token from bank for use in subsequent requests
+				UserID user = bank.checkLogInDetails(userName, password);
+				// if the user is authenticated then get requests from the user and process them
+				if (user != null) {
+					out.println("Log In Successful");
+					while (true) {
+						out.println("What do you want to do? (LOGOFF to logoff)");
+						String request = in.readLine();
+						if (request.trim().equalsIgnoreCase("logoff")) {
+							break;
+						} else if (request.trim().isEmpty()) {
+							continue;
+						} else {
+							System.out.println("Request from " + user.getKey());
+							String response = bank.processRequest(user, request);
+							out.println(response);
+						}
 					}
+				} else {
+					out.println("Log In Failed");
 				}
-			}
-			else {
-				out.println("Log In Failed");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
