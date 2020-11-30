@@ -24,7 +24,7 @@ Returns: SUCCESS or FAIL
 PAY
 Allows a customer to transfer money outside his/her accounts. 
 Command: PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>
-Returns: SUCCESS or FAIL
+Returns: SUCCESS or a specific error message
 
 BUYBITCOIN
 Allows a customer to buy bitcoin with money from one of its accounts and store it
@@ -37,3 +37,16 @@ Allows a customer to transfer money from its own bitcoin wallet into another.
 Command: BITCOINPAY <BitcoinAmount> <DestinationWallet>
 A prefix for the destination wallet is required ("NEWBANK." indicates our bank)
 Returns: A transaction confirmation or error message
+OFFERMICROLOAN
+Offer a microloan to the other customers of the bank.
+Command: OFFERMICROLOAN <Account> <Amount>
+Returns: SUCCESS or a specific error message
+
+SHOWOFFEREDMICROLOANS
+Returns a list of all microloans available to the customer.
+Command: SHOWOFFEREDMICROLOANS
+Output example:
+Available Microloans
+####################
+From	||	Amount	||	MicroLoanID
+Christina Keating	||	100.00	||	fe284033-b711-4304-9b68-87588587b589
