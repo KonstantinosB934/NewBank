@@ -5,12 +5,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class NewBankClientHandler extends Thread{
 	
 	private NewBank bank;
 	private BufferedReader in;
 	private PrintWriter out;
+	private List<String> commands = Arrays.asList(new String[]{"MOVE", "UPDATE", "NEWACCOUNT", "DELETEACCOUNT",
+			"DELETEACCOUNT", "PAY", "SHOWMYACCOUNTS"});
 	
 	public NewBankClientHandler(Socket s) throws IOException {
 		bank = NewBank.getBank();
@@ -34,18 +39,27 @@ public class NewBankClientHandler extends Thread{
 				// if the user is authenticated then get requests from the user and process them
 				if (user != null) {
 					out.println("Log In Successful");
+
 					while (true) {
-						out.println("What do you want to do? (LOGOFF to logoff)");
+						bank.help(user, out);
 						String request = in.readLine();
-						if (request.trim().equalsIgnoreCase("logoff")) {
-							break;
-						} else if (request.trim().isEmpty()) {
-							continue;
-						} else {
-							System.out.println("Request from " + user.getKey());
-							String response = bank.processRequest(user, request);
-							out.println(response);
+						try {
+							String[] requestCommand = request.split(" ");
+							if (commands.contains(requestCommand[0])) {
+								out.println("Request from " + user.getKey());
+								String response = bank.processRequest(user, request);
+								out.println(response);
+							} else if (request.trim().equalsIgnoreCase("logoff")) {
+								break;
+							} else if (request.trim().isEmpty()) {
+								continue;
+							}
+						} catch (Exception e) {
+							out.println("Your request has failed: " + request);
+							out.println(e.getLocalizedMessage());
+							bank.help(user, out);
 						}
+
 					}
 				} else {
 					out.println("Log In Failed");
