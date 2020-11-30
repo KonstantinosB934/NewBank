@@ -76,8 +76,8 @@ public class NewBank {
           return showMyAccounts(customer);
         }
 
-        if ("BITCOINMOVE".equals(request.substring(0, "BITCOINMOVE".length()))) {
-          return bitcoinMove(customer, request);
+        if ("BUYBITCOIN".equals(request.substring(0, "BUYBITCOIN".length()))) {
+          return buyBitcoin(customer, request);
         }
 
         if ("BITCOINPAY".equals(request.substring(0, "BITCOINPAY".length()))) {
@@ -239,15 +239,26 @@ public class NewBank {
 
   }
 
-  private String bitcoinMove(Customer customer, String request) {
+  /**
+   * Allows a customer to buy bitcoin with money from one of its accounts. If the customer
+   * previously did not have a bitcoin wallet, one is created.
+   * If the specified account is not valid or does not hold enough money no transaction is
+   * performed.
+   *
+   * @param customer The customer who executes the command and wants to buy bitcoin
+   * @param request The complete CLI request which also contains all parameters
+   * @return A message which indicates the transaction has been completed successfully or an error
+   * message
+   */
+  private String buyBitcoin(Customer customer, String request) {
     if (customer != null && request != null) {
       String[] parameters = request.split(" ");
       //check request format
       if (parameters.length != 3) {
         return String.format(
-            "Expected the following format for the BITCOINMOVE command:\n\n" +
-                "BITCOINMOVE <SourceCustomerAccount> <Amount>\n\n" +
-                "but the number of parameters found after BITCOINMOVE is %d",
+            "Expected the following format for the BUYBITCOIN command:\n\n" +
+                "BUYBITCOIN <SourceCustomerAccount> <Amount>\n\n" +
+                "but the number of parameters found after BUYBITCOIN is %d",
             parameters.length - 1
         );
       }
@@ -291,6 +302,15 @@ public class NewBank {
     return "Error processing request: Customer or request are invalid.";
   }
 
+  /**
+   * Allows a customer to transfer money from its own bitcoin wallet into another.
+   *
+   * @param customer The customer who executes the command and wants to pay via bitcoin into a
+   *                 bitcoin wallet
+   * @param request The complete CLI request which also contains all parameters
+   * @return A message which indicates the transaction has been completed successfully or an error
+   * message
+   */
   private String bitcoinPay(Customer customer, String request) {
     if (customer != null && request != null) {
       String[] parameters = request.split(" ");

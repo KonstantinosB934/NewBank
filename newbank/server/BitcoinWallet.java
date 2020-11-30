@@ -15,6 +15,12 @@ public abstract class BitcoinWallet {
     this.bitcoins = 0.0;
   }
 
+  /**
+   * Abstract method that determines the exchange rate of bitcoin and a currency specified
+   * in subclasses.
+   *
+   * @return The exchange rate 1 subclass currency equals [returnValue] bitcoins
+   */
   public abstract double getExchangeRate();
 
   public boolean changeBitcoin(double bitcoinChange) {
@@ -25,6 +31,12 @@ public abstract class BitcoinWallet {
     return true;
   }
 
+  /**
+   * Calculates the BTC equivalent of a subclass currency.
+   *
+   * @param baseCurrency The amount of the subclass currency
+   * @return The equivalent BTC amount
+   */
   public double getBtcEquivalent(double baseCurrency) {
     return baseCurrency * this.getExchangeRate();
   }

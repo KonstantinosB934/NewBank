@@ -10,6 +10,7 @@ public class Customer extends User {
 	private String billingAddress;
 	private String deliveryAddress;
 
+	//bitcoin wallet
 	private BitcoinWallet btcWallet;
 
 	public Customer(String password){
@@ -121,10 +122,18 @@ public class Customer extends User {
 				"Delivery Address: " + " " + deliveryAddress;
 	}
 
+	/**
+	 * Returns the bitcoin wallet or null when there is none.
+	 *
+	 * @return The bitcoin wallet property
+	 */
 	public BitcoinWallet getBtcWallet() {
 		return this.btcWallet;
 	}
 
+	/**
+	 * Creates a new bitcoin wallet
+	 */
 	public void createBtcWallet() {
 		this.btcWallet = new GBPBitcoinWallet();
 	}
