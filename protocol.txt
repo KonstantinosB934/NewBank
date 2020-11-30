@@ -25,3 +25,15 @@ PAY
 Allows a customer to transfer money outside his/her accounts. 
 Command: PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>
 Returns: SUCCESS or FAIL
+
+BUYBITCOIN
+Allows a customer to buy bitcoin with money from one of its accounts and store it
+inside its bitcoin wallet.
+Command: BUYBITCOIN <SourceCustomerAccount> <Amount>
+Returns: A transaction confirmation or error message
+
+BITCOINPAY
+Allows a customer to transfer money from its own bitcoin wallet into another.
+Command: BITCOINPAY <BitcoinAmount> <DestinationWallet>
+A prefix for the destination wallet is required ("NEWBANK." indicates our bank)
+Returns: A transaction confirmation or error message
