@@ -78,6 +78,14 @@ public class NewBank {
 					return payAmountToOtherCustomer(customer, request);
 				}
 
+				if ("BUYBITCOIN".equals(request.substring(0, "BUYBITCOIN".length()))) {
+					return buyBitcoin(customer, request);
+				}
+
+				if ("BITCOINPAY".equals(request.substring(0, "BITCOINPAY".length()))) {
+					return bitcoinPay(customer, request);
+				}
+
 				if (request.startsWith("OFFERMICROLOAN ")) {
 					return offerMicroLoan(customer, request);
 				}
@@ -155,11 +163,11 @@ public class NewBank {
 		}
 	}
 
-	private String deleteAccount(Customer customer, String request) {
-		String[] deleteCommand = request.split(" ");
-		String myAccount = deleteCommand[1];
-		return customer.delete(myAccount);
-	}
+  private String deleteAccount(Customer customer, String request) {
+    String[] deleteCommand = request.split(" ");
+    String myAccount = deleteCommand[1];
+    return customer.delete(myAccount);
+  }
 
 	/**
 	 * Pay an amount to another customer of the bank. The outgoing account should be specified and
@@ -224,21 +232,170 @@ public class NewBank {
 		return "SUCCESS";
 	}
 
-	private String addCustomer(String request){
-		String[] addCommand = request.split(" ");
+  private String addCustomer(String request) {
+    String[] addCommand = request.split(" ");
 
-		String customerName = addCommand[1];
-		String password = addCommand[2];
+    String customerName = addCommand[1];
+    String password = addCommand[2];
 
-		if(!users.containsKey(customerName)) {
-			Customer customer = new Customer(password);
-			users.put(customerName, customer);
+    if (!users.containsKey(customerName)) {
+      Customer customer = new Customer(password);
+      users.put(customerName, customer);
 
 			return "You have successfully added '" + customerName + "'";
 		}
 		else
 			return "Sorry, customer already exists";
 
+	}
+
+	/**
+	 * Allows a customer to buy bitcoin with money from one of its accounts. If the customer
+	 * previously did not have a bitcoin wallet, one is created.
+	 * If the specified account is not valid or does not hold enough money no transaction is
+	 * performed.
+	 *
+	 * @param customer The customer who executes the command and wants to buy bitcoin
+	 * @param request The complete CLI request which also contains all parameters
+	 * @return A message which indicates the transaction has been completed successfully or an error
+	 * message
+	 */
+	private String buyBitcoin(Customer customer, String request) {
+		if (customer != null && request != null) {
+			String[] parameters = request.split(" ");
+			//check request format
+			if (parameters.length != 3) {
+				return String.format(
+						"Expected the following format for the BUYBITCOIN command:\n\n" +
+								"BUYBITCOIN <SourceCustomerAccount> <Amount>\n\n" +
+								"but the number of parameters found after BUYBITCOIN is %d",
+						parameters.length - 1
+				);
+			}
+
+			//check if account exists
+			String accountName = parameters[1];
+			Account account = customer.getAccount(accountName);
+			if (account == null) {
+				return String.format("Account \"%s\" was not found", accountName);
+			}
+
+			//check if the customer already has a bitcoin wallet
+			if (customer.getBtcWallet() == null) {
+				customer.createBtcWallet();
+			}
+
+			//check the amount and verify account balance
+			double amount;
+			try {
+				amount = Double.parseDouble(parameters[2]);
+				if (amount < 0.0) {
+					return String
+							.format("Invalid (negative) value for transfer amount: \"%s\"", parameters[2]);
+				}
+			} catch (NumberFormatException ignored) {
+				return String.format("Invalid value for transfer amount: \"%s\"", parameters[2]);
+			}
+			if (amount > account.getBalance()) {
+				return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
+			}
+
+			//perform the move
+			if (customer.getBtcWallet().changeBitcoin(customer.getBtcWallet().getBtcEquivalent(amount))) {
+				account.setBalance(account.getBalance() - amount);
+			} else {
+				return "Error performing the transaction: Could not move the specified amount.";
+			}
+			return "Transaction complete: Account(" + account.toString() + "), BitcoinWallet(" + customer
+					.getBtcWallet().toString() + ")";
+		}
+		return "Error processing request: Customer or request are invalid.";
+	}
+
+	/**
+	 * Allows a customer to transfer money from its own bitcoin wallet into another.
+	 *
+	 * @param customer The customer who executes the command and wants to pay via bitcoin into a
+	 *                 bitcoin wallet
+	 * @param request The complete CLI request which also contains all parameters
+	 * @return A message which indicates the transaction has been completed successfully or an error
+	 * message
+	 */
+	private String bitcoinPay(Customer customer, String request) {
+		if (customer != null && request != null) {
+			String[] parameters = request.split(" ");
+			//check request format
+			if (parameters.length != 3) {
+				return String.format(
+						"Expected the following format for the BITCOINPAY command:\n\n" +
+								"BITCOINPAY <BitcoinAmount> <DestinationWallet> \n\n" +
+								"but the number of parameters found after BITCOINPAY is %d\n\n" +
+								"* <Destination-Person/Company>: NewBank.{NewBankUserName} for this bank's customers",
+						parameters.length - 1
+				);
+			}
+
+			//check if the customer has a bitcoin wallet
+			if (customer.getBtcWallet() == null) {
+				return "The current customer does not have a bitcoin wallet.";
+			}
+
+			//check the amount and verify bitcoin wallet balance
+			double amount;
+			try {
+				amount = Double.parseDouble(parameters[1]);
+				if (amount < 0.0) {
+					return String
+							.format("Invalid (negative) value for transfer amount: \"%s\"", parameters[2]);
+				}
+			} catch (NumberFormatException ignored) {
+				return String.format("Invalid value for transfer amount: \"%s\"", parameters[2]);
+			}
+			if (amount > customer.getBtcWallet().getBitcoins()) {
+				return String.format("Insufficient balance for this transfer: %.8f",
+						customer.getBtcWallet().getBitcoins());
+			}
+
+			//check if destination person/company is also a customer of this bank
+			String recipientName = parameters[2];
+			Customer recipientCustomer = null;
+			if (recipientName.length() >= "NEWBANK.".length() && recipientName
+					.substring(0, "NEWBANK.".length()).toUpperCase().equals("NEWBANK.")) {
+				recipientName = recipientName.substring("NEWBANK.".length());
+				User recipient;
+				if (users.containsKey(recipientName)) {
+					recipient = users.get(recipientName);
+				} else {
+					return String
+							.format("Recipient \"%s\" not identified in NewBank user records", recipientName);
+				}
+				if (!(recipient instanceof Customer)) {
+					return String
+							.format("Recipient \"%s\" not identified in NewBank customer records", recipientName);
+				}
+				recipientCustomer = (Customer) recipient;
+			}
+
+			//perform the move
+			if (recipientCustomer != null) {
+				if (recipientCustomer.getBtcWallet() == null) {
+					recipientCustomer.createBtcWallet();
+				}
+				if (!recipientCustomer.getBtcWallet().changeBitcoin(amount)) {
+					return "Error transferring bitcoins to recipient.";
+				}
+				if (!customer.getBtcWallet().changeBitcoin(-amount)) {
+					return "Error removing the bitcoins from the sender.";
+				}
+			} else {
+				if (!customer.getBtcWallet().changeBitcoin(-amount)) {
+					return "Error removing the bitcoins from the sender.";
+				}
+			}
+			return "Transaction complete: BitcoinWallet(" + customer
+					.getBtcWallet().toString() + ")";
+		}
+		return "Error processing request: Customer or request are invalid.";
 	}
 
 	/**

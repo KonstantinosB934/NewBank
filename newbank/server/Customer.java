@@ -10,6 +10,9 @@ public class Customer extends User {
 	private String billingAddress;
 	private String deliveryAddress;
 
+	//bitcoin wallet
+	private BitcoinWallet btcWallet;
+
 	public Customer(String password){
 		super(password);
 		accounts = new ArrayList<>();
@@ -48,6 +51,10 @@ public class Customer extends User {
 		StringBuilder s = new StringBuilder();
 		for(Account a : accounts) {
 			s.append(a.toString());
+			s.append("\n");
+		}
+		if (this.getBtcWallet() != null) {
+			s.append(this.getBtcWallet().toString());
 			s.append("\n");
 		}
 		return s.toString();
@@ -113,5 +120,21 @@ public class Customer extends User {
 		return  "Your details are :" + "\n" + getFirstName() + " " + getLastName() + " " +
 				"Billing Address: " + " " + billingAddress +
 				"Delivery Address: " + " " + deliveryAddress;
+	}
+
+	/**
+	 * Returns the bitcoin wallet or null when there is none.
+	 *
+	 * @return The bitcoin wallet property
+	 */
+	public BitcoinWallet getBtcWallet() {
+		return this.btcWallet;
+	}
+
+	/**
+	 * Creates a new bitcoin wallet
+	 */
+	public void createBtcWallet() {
+		this.btcWallet = new GBPBitcoinWallet();
 	}
 }
