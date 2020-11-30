@@ -1,14 +1,17 @@
 package newbank.server;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class NewBank {
 
 	private static final NewBank bank = new NewBank();
-	private final HashMap<String,User> users;
+	private final HashMap<String, User> users;
+	private final HashMap<UUID, MicroLoan> microLoans;
 
 	private NewBank() {
 		users = new HashMap<>();
+		microLoans = new HashMap<>();
 		addTestData();
 	}
 
@@ -28,6 +31,10 @@ public class NewBank {
 
 		BankEmployee max = new BankEmployee("123456", "Max", "Powers");
 		users.put("Max", max);
+
+		// Add new microloans from Bhagy and Christina
+		offerMicroLoan(bhagy, "OFFERMICROLOAN Main 200");
+		offerMicroLoan(christina, "OFFERMICROLOAN Savings 100");
 	}
 	
 	public static NewBank getBank() { return bank; }
@@ -69,6 +76,14 @@ public class NewBank {
 
 				if (request.startsWith("PAY ")) {
 					return payAmountToOtherCustomer(customer, request);
+				}
+
+				if (request.startsWith("OFFERMICROLOAN ")) {
+					return offerMicroLoan(customer, request);
+				}
+
+				if (request.equals("SHOWMICROLOANS")) {
+					return showMicroLoans(customer);
 				}
 
 				if ("SHOWMYACCOUNTS".equals(request)) {
@@ -163,7 +178,7 @@ public class NewBank {
 		if (requestParameterArr.length != 5) {
 			return String.format(
 					"Expected the following format for the pay command:\n\n" +
-					"PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>\n\n" +
+					"PAY <Account> <Destination-Person/Company> <DestinationAccount> <Amount>\n\n" +
 					"but the number of parameters found after PAY is %d",
 					requestParameterArr.length - 1
 			);
@@ -224,6 +239,70 @@ public class NewBank {
 		else
 			return "Sorry, customer already exists";
 
+	}
+
+	/**
+	 * Offer a microloan of a specific amount from a customer to the other customers of the bank.
+	 * If there are no sufficient funds, then the request should be rejected
+	 *
+	 * @param customer	The customer that the microloan is created from
+	 * @param request	The offer microloan request as recorded from the CLI interface
+	 * @return 	"SUCCESS" if the pay request has been completed successfully. An error message will be
+	 * 			returned otherwise
+	 */
+	private String offerMicroLoan(Customer customer, String request) {
+		String[] requestParameterArr = request.split(" ");
+		// expected request format: OFFERMICROLOAN <SourceCustomerAccount> <Amount>
+		if (requestParameterArr.length != 3) {
+			return String.format(
+					"Expected the following format for the offer micro loan command:\n\n" +
+							"OFFERMICROLOAN <Account> <Amount>\n\n" +
+							"but the number of parameters found after OFFERMICROLOAN is %d",
+					requestParameterArr.length - 1
+			);
+		}
+		// Check if account exists
+		String accountName = requestParameterArr[1];
+		Account account = customer.getAccount(accountName);
+		if (account == null) {
+			return String.format("Account \"%s\" was not found", accountName);
+		}
+		// Check if there are sufficient funds
+		double amount;
+		try {
+			amount = Double.parseDouble(requestParameterArr[2]);
+		} catch (NumberFormatException ignored) {
+			return String.format("Invalid value for microloan amount: \"%s\"", requestParameterArr[2]);
+		}
+		if (amount > account.getBalance()) {
+			return String.format("Insufficient balance for this microloan: %.2f", account.getBalance());
+		}
+		// Add the microloan in the market place
+		MicroLoan microLoan = new MicroLoan(customer, amount);
+		this.microLoans.put(microLoan.microLoanID.getKey(), microLoan);
+		account.setBalance(account.getBalance() - amount);
+		return "Microloan added successfully";
+	}
+
+	/** Helper that returns a string with all the available microloans and their details */
+	private String showMicroLoans(Customer customer) {
+		StringBuilder loansStrBuild = new StringBuilder("Available Microloans\n");
+		loansStrBuild.append(new String(new char[loansStrBuild.length()-1]).replace("\0", "#"));
+		loansStrBuild.append("\nFrom\t||\tAmount\t||\tMicroLoanID\n");
+		for (UUID microLoanID : microLoans.keySet()) {
+			MicroLoan microLoan = microLoans.get(microLoanID);
+			if (!microLoan.getAvailability() || customer.equals(microLoan.getOwner())) {
+				continue;
+			}
+			loansStrBuild.append(String.format(
+					"%s %s\t||\t%.2f\t||\t%s\n",
+					microLoan.getOwner().getFirstName(),
+					microLoan.getOwner().getLastName(),
+					microLoan.getAmount(),
+					microLoan.getID().toString()
+			));
+		}
+		return loansStrBuild.toString();
 	}
 
 }
