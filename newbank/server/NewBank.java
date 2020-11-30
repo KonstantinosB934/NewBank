@@ -52,10 +52,6 @@ public class NewBank {
 			if (user instanceof Customer) {
 				//all customer related protocols
 				Customer customer = (Customer)user;
-
-				if(request.startsWith("SHOWMYACCOUNTS")){
-					return showMyAccounts(customer);
-				}
 				if (request.startsWith("MOVE ")) {
 					return moveMoney(customer, request);
 				}
@@ -76,7 +72,7 @@ public class NewBank {
 					return payAmountToOtherCustomer(customer, request);
 				}
 
-				if (equals(request)) {
+				if ("SHOWMYACCOUNTS".equals(request)) {
 					return showMyAccounts(customer);
 				}
 				return "FAIL";
