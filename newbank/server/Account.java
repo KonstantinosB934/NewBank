@@ -13,7 +13,7 @@ public class Account {
 	}
 	
 	public String toString() {
-		return (accountName + ": " + currentBalance+"\n");
+		return String.format("{ accountName: %s, currentBalance: %s }", accountName, currentBalance);
 	}
 
 	public double getBalance() {
