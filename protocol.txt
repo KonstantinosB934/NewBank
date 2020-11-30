@@ -31,9 +31,9 @@ Offer a microloan to the other customers of the bank.
 Command: OFFERMICROLOAN <Account> <Amount>
 Returns: SUCCESS or a specific error message
 
-SHOWMICROLOANS
+SHOWOFFEREDMICROLOANS
 Returns a list of all microloans available to the customer.
-Command: SHOWMICROLOANS
+Command: SHOWOFFEREDMICROLOANS
 Output example:
 Available Microloans
 ####################
