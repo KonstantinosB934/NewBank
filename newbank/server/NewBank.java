@@ -91,7 +91,7 @@ public class NewBank {
 					return offerMicroLoan(customer, request);
 				}
 
-				if (request.equals("SHOWOFFEREDMICROLOANS")) {
+				if (request.equals("SEARCHMICROLOAN")) {
 					return showMicroLoans(customer);
 				}
 

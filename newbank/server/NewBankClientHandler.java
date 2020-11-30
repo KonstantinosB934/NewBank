@@ -14,8 +14,19 @@ public class NewBankClientHandler extends Thread{
 	private NewBank bank;
 	private BufferedReader in;
 	private PrintWriter out;
-	private List<String> commands = Arrays.asList(new String[]{"MOVE", "UPDATE", "NEWACCOUNT", "DELETEACCOUNT",
-			"DELETEACCOUNT", "PAY", "SHOWMYACCOUNTS"});
+	private List<String> commands = Arrays.asList(
+			"MOVE",
+			"UPDATE",
+			"NEWACCOUNT",
+			"DELETEACCOUNT",
+			"DELETEACCOUNT",
+			"PAY",
+			"SHOWMYACCOUNTS",
+			"BUYBITCOIN",
+			"BITCOINPAY",
+			"OFFERMICROLOAN",
+			"SEARCHMICROLOAN"
+	);
 	
 	public NewBankClientHandler(Socket s) throws IOException {
 		bank = NewBank.getBank();
