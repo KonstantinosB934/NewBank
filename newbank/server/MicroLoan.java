@@ -49,4 +49,7 @@ public class MicroLoan {
 	/** Getter for the isAvailable attribute */
 	public boolean getAvailability() { return this.isAvailable; }
 
+	/** Setter for the isAvailable attribute */
+	public void setAmount(double amount) { this.amount = amount; }
+
 }

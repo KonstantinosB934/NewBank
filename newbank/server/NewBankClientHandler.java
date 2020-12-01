@@ -25,7 +25,8 @@ public class NewBankClientHandler extends Thread{
 			"BUYBITCOIN",
 			"BITCOINPAY",
 			"OFFERMICROLOAN",
-			"SEARCHMICROLOAN"
+			"SEARCHMICROLOAN",
+			"TAKEMICROLOAN"
 	);
 	
 	public NewBankClientHandler(Socket s) throws IOException {
