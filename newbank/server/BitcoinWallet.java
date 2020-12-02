@@ -41,6 +41,15 @@ public abstract class BitcoinWallet {
     return baseCurrency * this.getExchangeRate();
   }
 
+  /**
+   * Calculates the subclass currency equivalent of a certain amount of bitcoins.
+   * @param btcAmount The amount of bitcoins
+   * @return The equivalent subclass currency amount
+   */
+  public double getEquivalentToBtc(double btcAmount) {
+    return btcAmount / this.getExchangeRate();
+  }
+
   @Override
   public String toString() {
     return String.format("{bitcoins: %s }", this.bitcoins);

@@ -83,6 +83,10 @@ public class NewBank {
 					return buyBitcoin(customer, request);
 				}
 
+				if ("SELLBITCOIN".equals(request.substring(0, "SELLBITCOIN".length()))) {
+					return sellBitcoin(customer, request);
+				}
+
 				if ("BITCOINPAY".equals(request.substring(0, "BITCOINPAY".length()))) {
 					return bitcoinPay(customer, request);
 				}
@@ -345,7 +349,7 @@ public class NewBank {
 			if (parameters.length != 3) {
 				return String.format(
 						"Expected the following format for the BUYBITCOIN command:\n\n" +
-								"BUYBITCOIN <SourceCustomerAccount> <Amount>\n\n" +
+								"BUYBITCOIN <SourceAccount> <Amount>\n\n" +
 								"but the number of parameters found after BUYBITCOIN is %d",
 						parameters.length - 1
 				);
@@ -381,6 +385,68 @@ public class NewBank {
 			//perform the move
 			if (customer.getBtcWallet().changeBitcoin(customer.getBtcWallet().getBtcEquivalent(amount))) {
 				account.setBalance(account.getBalance() - amount);
+			} else {
+				return "Error performing the transaction: Could not move the specified amount.";
+			}
+			return "Transaction complete: Account(" + account.toString() + "), BitcoinWallet(" + customer
+					.getBtcWallet().toString() + ")";
+		}
+		return "Error processing request: Customer or request are invalid.";
+	}
+
+	/**
+	 * Allows a customer to sell bitcoin, receiving money into one of its accounts. If the customer
+	 * does not have a bitcoin wallet, the transactions fails.
+	 * If the specified bitcoin amount is not available, the transactions fails.
+	 *
+	 * @param customer The customer who executes the command and wants to sell bitcoin
+	 * @param request The complete CLI request which also contains all parameters
+	 * @return A message which indicates the transaction has been completed successfully or an error
+	 * message
+	 */
+	private String sellBitcoin(Customer customer, String request) {
+		if (customer != null && request != null) {
+			String[] parameters = request.split(" ");
+			//check request format
+			if (parameters.length != 3) {
+				return String.format(
+						"Expected the following format for the SELLBITCOIN command:\n\n" +
+								"SELLBITCOIN <DestinationAccount> <Amount>\n\n" +
+								"but the number of parameters found after SELLBITCOIN is %d",
+						parameters.length - 1
+				);
+			}
+
+			//check if account exists
+			String accountName = parameters[1];
+			Account account = customer.getAccount(accountName);
+			if (account == null) {
+				return String.format("Account \"%s\" was not found", accountName);
+			}
+
+			//check if the customer already has a bitcoin wallet
+			if (customer.getBtcWallet() == null) {
+				return "You do not have a bitcoin wallet.";
+			}
+
+			//check the amount and verify account balance
+			double amount;
+			try {
+				amount = Double.parseDouble(parameters[2]);
+				if (amount < 0.0) {
+					return String
+							.format("Invalid (negative) value for transfer amount: \"%s\"", parameters[2]);
+				}
+			} catch (NumberFormatException ignored) {
+				return String.format("Invalid value for transfer amount: \"%s\"", parameters[2]);
+			}
+			if (amount > customer.getBtcWallet().getBitcoins()) {
+				return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
+			}
+
+			//perform the move
+			if (customer.getBtcWallet().changeBitcoin(-amount)) {
+				account.setBalance(account.getBalance() + customer.getBtcWallet().getEquivalentToBtc(amount));
 			} else {
 				return "Error performing the transaction: Could not move the specified amount.";
 			}
