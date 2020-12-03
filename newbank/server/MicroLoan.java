@@ -46,6 +46,9 @@ public class MicroLoan {
 	/** Getter for the owner attribute */
 	public Customer getOwner() { return this.owner; }
 
+	/** Getter for the owner attribute */
+	public Customer getReceiver() { return this.receiver; }
+
 	/** Getter for the isAvailable attribute */
 	public boolean getAvailability() { return this.isAvailable; }
 
