@@ -1,9 +1,9 @@
 package newbank.server;
 
-public class CustomerID {
+public class UserID {
 	private String key;
-	
-	public CustomerID(String key) {
+
+	public UserID(String key) {
 		this.key = key;
 	}
 	

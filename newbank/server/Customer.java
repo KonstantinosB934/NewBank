@@ -2,33 +2,62 @@ package newbank.server;
 
 import java.util.ArrayList;
 
-public class Customer {
+public class Customer extends User {
 	
 	private ArrayList<Account> accounts;
-	private String password;
 	private String passwordUpdate;
 
+	private String billingAddress;
+	private String deliveryAddress;
+
+	//bitcoin wallet
+	private BitcoinWallet btcWallet;
 
 	public Customer(String password){
+		super(password);
 		accounts = new ArrayList<>();
-		this.password = password;
 		this.passwordUpdate = password;
 	}
-	public String getPassword(){
-		return passwordUpdate;
+
+	public Customer(String password, String firstName, String lastName){
+		super(password, firstName, lastName);
+		accounts = new ArrayList<>();
+		this.passwordUpdate = password;
 	}
 
-	public void setPassword(String newPassword){
-		passwordUpdate = newPassword;
+	@Override
+	public String getPassword(){ return passwordUpdate; }
+
+	@Override
+	public void setPassword(String newPassword){ passwordUpdate = newPassword; }
+
+	public String getBillingAddress() {
+		return billingAddress;
+	}
+
+	public void setBillingAddress(String billingAddress) {
+		this.billingAddress = billingAddress;
+	}
+
+	public String getDeliveryAddress() {
+		return deliveryAddress;
+	}
+
+	public void setDeliveryAddress(String deliveryAddress) {
+		this.deliveryAddress = deliveryAddress;
 	}
 
 	public String accountsToString() {
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		for(Account a : accounts) {
-			s += a.toString();
-			s += "\n";
+			s.append(a.toString());
+			s.append("\n");
 		}
-		return s;
+		if (this.getBtcWallet() != null) {
+			s.append(this.getBtcWallet().toString());
+			s.append("\n");
+		}
+		return s.toString();
 	}
 
 	public String addAccount(Account account) {
@@ -36,8 +65,21 @@ public class Customer {
 		return "New Account successfully created.";
 	}
 
-	public String update(String newPassword, String confirmPassword){
+	/**
+	 * Search for account by name and return if found.
+	 * @param accountName The account name to search for
+	 * @return The account if found, null otherwise
+	 */
+	public Account getAccount(String accountName) {
+		for (Account account : accounts) {
+			if (account.getName().equals(accountName)) {
+				return account;
+			}
+		}
+		return null;
+	}
 
+	public String update(String newPassword, String confirmPassword){
 			if(newPassword.matches(confirmPassword)){
 				setPassword(newPassword);
 				return "Your password has been successfully updated";
@@ -45,11 +87,7 @@ public class Customer {
 
 		return "Fail, Please try again";
 	}
-	
-	public void getBalance(Account account) {
-		account.getBalance();
-	}
-	
+
 	public String moveMoney(String From, String To, Double Amount) {
 		for(Account F : accounts) {
 			if(F.getName().equals(From)) {
@@ -63,5 +101,40 @@ public class Customer {
 			}
 		}
 		return "FAIL";
+	}
+
+	public String delete(String myAccount) {
+		
+		for(Account A : accounts) {
+			if(A.getName().equals(myAccount)) {
+				accounts.remove(A);
+				return "SUCCESS";
+			}
+		}
+
+		return "FAIL";
+	}
+
+	@Override
+	public String toString() {
+		return  "Your details are :" + "\n" + getFirstName() + " " + getLastName() + " " +
+				"Billing Address: " + " " + billingAddress +
+				"Delivery Address: " + " " + deliveryAddress;
+	}
+
+	/**
+	 * Returns the bitcoin wallet or null when there is none.
+	 *
+	 * @return The bitcoin wallet property
+	 */
+	public BitcoinWallet getBtcWallet() {
+		return this.btcWallet;
+	}
+
+	/**
+	 * Creates a new bitcoin wallet
+	 */
+	public void createBtcWallet() {
+		this.btcWallet = new GBPBitcoinWallet();
 	}
 }
