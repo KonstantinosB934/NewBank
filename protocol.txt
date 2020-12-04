@@ -37,6 +37,7 @@ Allows a customer to transfer money from its own bitcoin wallet into another.
 Command: BITCOINPAY <BitcoinAmount> <DestinationWallet>
 A prefix for the destination wallet is required ("NEWBANK." indicates our bank)
 Returns: A transaction confirmation or error message
+
 OFFERMICROLOAN
 Offer a microloan to the other customers of the bank.
 Command: OFFERMICROLOAN <Account> <Amount>
@@ -50,3 +51,8 @@ Available Microloans
 ####################
 From	||	Amount	||	MicroLoanID
 Christina Keating	||	100.00	||	fe284033-b711-4304-9b68-87588587b589
+
+TAKEMICROLOAN
+Borrow the full or partial amount of an offered microloan.
+Command: TAKEMICROLOAN <Account> <MicroloanID> (<Amount>)
+Returns: SUCCESS or a specific error message
