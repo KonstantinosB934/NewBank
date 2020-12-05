@@ -111,6 +111,8 @@ public class NewBank {
 					return deleteCustomer(request);
 				} else if(request.startsWith("NEWCUSTOMER")) {
 					return addCustomer(request);
+				} else if(request.startsWith("FREEZECUSTOMER")) {
+					return freezeCustomer(request);
 				}
 			}
 		}
@@ -281,11 +283,32 @@ public class NewBank {
 		}
 
 	}
+	
+	private String freezeCustomer(String request) throws Exception {
+		String[] freezeCommand = request.split(" ");
+
+		try {
+			String customerName = freezeCommand[1];
+
+			if(users.containsKey(customerName)) {
+				Customer customer = (Customer) users.get(customerName);
+				if(customer.freeze()) {
+					return customerName + " frozen";
+				} else {
+					return customerName + " unfrozen";
+				}
+			} else {
+				return "Account was not found for " + customerName;
+			}
+		} catch (Exception e) {
+			throw new Exception("Something went wrong when trying to freeze the customer account");
+		}
+
+	}
 
 	public void help (UserID userId, PrintWriter out) {
 		if (users.containsKey(userId.getKey())) {
 			User user = users.get(userId.getKey());
-			out.println("What do you want to do? (LOGOFF to logoff)");
 			if (user instanceof Customer) {
 				out.println("SHOWMYACCOUNTS " + " : shows the balance in different accounts. To view this: ");
 				out.println("Type SHOWMYACCOUNTS in capital letters exactly as shown");
@@ -325,6 +348,10 @@ public class NewBank {
 
 				out.println("DELETECUSTOMER " + " : allows you to delete a customer on the system. To do this :");
 				out.println("Type DELETECUSTOMER in capital letters as shown, followed by a space, followed by the customer name");
+				out.println();
+				
+				out.println("FREEZECUSTOMER " + " : allows you to toggle whether a customer's accounts are frozen. To do this :");
+				out.println("Type FREEZECUSTOMER in capital letters as shown, followed by a space, followed by the customer name");
 				out.println();
 			}
 
