@@ -29,6 +29,10 @@ public class NewBank {
 		Customer john = new Customer("101", "John", "Benardis");
 		john.addAccount(new Account("Checking", 250.0));
 		users.put("John", john);
+		
+		Customer csr = new Customer("000");
+		csr.addAccount(new Account("BeGood", 0.0));
+		users.put("CSR", csr);
 
 		BankEmployee max = new BankEmployee("123456", "Max", "Powers");
 		users.put("Max", max);
@@ -98,6 +102,10 @@ public class NewBank {
 				if (request.startsWith("TAKEMICROLOAN ")) {
 					return takeMicroLoan(customer, request);
 				}
+				
+				if (request.startsWith("DONATE")) {
+					return donateMoney(customer, request);
+				}
 
 				if ("SHOWMYACCOUNTS".equals(request)) {
 					return showMyAccounts(customer);
@@ -134,6 +142,25 @@ public class NewBank {
 			return customer.moveMoney(From, To, Amount);
 		} catch (Exception e) {
 			throw new Exception("Something went wrong when trying to move money");
+		}
+	}
+	
+	private String donateMoney(Customer customer, String request) throws Exception {
+		String[] donateCommand = request.split(" ");
+		try {
+			String from = donateCommand[1];
+			Double amount = Double.parseDouble(donateCommand[2]);
+
+			String recipientName = "CSR";
+			User recipient = users.get(recipientName);
+			Customer recipientCustomer = (Customer) recipient;
+			String recipientAccountName = "BeGood";
+			Account recipientAccount = recipientCustomer.getAccount(recipientAccountName);
+			recipientAccount.setBalance(recipientAccount.getBalance() + amount);
+
+			return customer.donateMoney(from, amount);
+		} catch (Exception e) {
+			throw new Exception("Something went wrong when trying donate");
 		}
 	}
 
@@ -310,6 +337,11 @@ public class NewBank {
 				out.println("PAY " + " : allows you to transfer money from your account into another customer account. To do this :");
 				out.println("Type PAY in capital letters as shown, followed by a space, followed by your account name, followed by" +
 						"the recipient name, followed by the recipient account name, and followed by the amount in decimal number.");
+				out.println(); 
+				
+				out.println("DONATE " + " : allows you to donate money from your account towards philanthropic initiatives. To do this : ");
+				out.println("Type DONATE in capital letters as shown, followed by a space, followed by your account name," +
+						" followed by the amount you wish to donate in decimal number");
 				out.println();
 
 				out.println("DELETEACCOUNT " + " : allows you to delete an account. To do this: ");
