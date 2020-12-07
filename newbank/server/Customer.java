@@ -130,9 +130,9 @@ public class Customer extends User {
 
 	@Override
 	public String toString() {
-		return  "Your details are :" + "\n" + getFirstName() + " " + getLastName() + " " +
-				"Billing Address: " + " " + billingAddress +
-				"Delivery Address: " + " " + deliveryAddress;
+		return  "{Firstname: " + getFirstName() + ", Lastname: " + getLastName() +
+				", Billing Address: " + billingAddress +
+				", Delivery Address: " + deliveryAddress + "}";
 	}
 
 	/**

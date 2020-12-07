@@ -28,6 +28,8 @@ public class NewBankClientHandler extends Thread{
 			"OFFERMICROLOAN",
 			"SEARCHMICROLOAN",
 			"TAKEMICROLOAN"
+			"SEARCHMICROLOAN",
+			"REVOKEMICROLOAN"
 	);
 	
 	public NewBankClientHandler(Socket s) throws IOException {
