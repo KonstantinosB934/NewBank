@@ -30,9 +30,6 @@ public class NewBank {
 		john.addAccount(new Account("Checking", 250.0));
 		users.put("John", john);
 		
-		Customer csr = new Customer("000");
-		csr.addAccount(new Account("BeGood", 0.0));
-		users.put("CSR", csr);
 
 		BankEmployee max = new BankEmployee("123456", "Max", "Powers");
 		users.put("Max", max);
@@ -150,14 +147,6 @@ public class NewBank {
 		try {
 			String from = donateCommand[1];
 			Double amount = Double.parseDouble(donateCommand[2]);
-
-			String recipientName = "CSR";
-			User recipient = users.get(recipientName);
-			Customer recipientCustomer = (Customer) recipient;
-			String recipientAccountName = "BeGood";
-			Account recipientAccount = recipientCustomer.getAccount(recipientAccountName);
-			recipientAccount.setBalance(recipientAccount.getBalance() + amount);
-
 			return customer.donateMoney(from, amount);
 		} catch (Exception e) {
 			throw new Exception("Something went wrong when trying donate");
