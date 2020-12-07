@@ -19,13 +19,16 @@ public class NewBankClientHandler extends Thread{
 			"UPDATE",
 			"NEWACCOUNT",
 			"DELETEACCOUNT",
-			"DELETEACCOUNT",
 			"PAY",
 			"SHOWMYACCOUNTS",
 			"BUYBITCOIN",
 			"BITCOINPAY",
 			"OFFERMICROLOAN",
-			"SEARCHMICROLOAN"
+			"SEARCHMICROLOAN",
+			"TAKEMICROLOAN",
+			"DELETECUSTOMER",
+			"FREEZECUSTOMER",
+			"CHANGECUSTOMER"
 	);
 	
 	public NewBankClientHandler(Socket s) throws IOException {
@@ -50,9 +53,8 @@ public class NewBankClientHandler extends Thread{
 				// if the user is authenticated then get requests from the user and process them
 				if (user != null) {
 					out.println("Log In Successful");
-
+					out.println("What do you want to do? (LOGOFF to logoff, HELP for help)");
 					while (true) {
-						bank.help(user, out);
 						String request = in.readLine();
 						try {
 							String[] requestCommand = request.split(" ");
@@ -62,6 +64,8 @@ public class NewBankClientHandler extends Thread{
 								out.println(response);
 							} else if (request.trim().equalsIgnoreCase("logoff")) {
 								break;
+							} else if (request.trim().equalsIgnoreCase("help")) {
+								bank.help(user, out);
 							} else if (request.trim().isEmpty()) {
 								continue;
 							}
