@@ -27,8 +27,9 @@ public class NewBankClientHandler extends Thread{
 			"BITCOINPAY",
 			"OFFERMICROLOAN",
 			"SEARCHMICROLOAN",
-			"TAKEMICROLOAN"
-			"SEARCHMICROLOAN",
+			"TAKEMICROLOAN",
+			"DELETECUSTOMER",
+			"FREEZECUSTOMER",
 			"REVOKEMICROLOAN"
 	);
 	
@@ -54,7 +55,7 @@ public class NewBankClientHandler extends Thread{
 				// if the user is authenticated then get requests from the user and process them
 				if (user != null) {
 					out.println("Log In Successful");
-
+					out.println("What do you want to do? (LOGOFF to logoff, HELP for help)");
 					while (true) {
 						out.format("User(%s); type HELP, LOGOFF or an other COMMAND >> \n", userName);
 						String request = in.readLine();

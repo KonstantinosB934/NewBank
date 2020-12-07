@@ -10,6 +10,8 @@ public class Customer extends User {
 	private String billingAddress;
 	private String deliveryAddress;
 
+	private boolean frozen = false;
+
 	//bitcoin wallet
 	private BitcoinWallet btcWallet;
 
@@ -45,6 +47,11 @@ public class Customer extends User {
 
 	public void setDeliveryAddress(String deliveryAddress) {
 		this.deliveryAddress = deliveryAddress;
+	}
+
+	public boolean freeze() {
+		this.frozen = !this.frozen;
+		return this.frozen;
 	}
 
 	public String accountsToString() {
@@ -89,20 +96,25 @@ public class Customer extends User {
 	}
 
 	public String moveMoney(String From, String To, Double Amount) {
-		for(Account F : accounts) {
-			if(F.getName().equals(From)) {
-				for(Account T : accounts) {
-					if(T.getName().equals(To)) {
-						F.setBalance(F.getBalance()-Amount);
-						T.setBalance(T.getBalance()+Amount);
-						return "SUCCESS";
+
+		if(this.frozen) {
+			return "Your account is frozen";
+		} else {
+			for(Account F : accounts) {
+				if(F.getName().equals(From)) {
+					for(Account T : accounts) {
+						if(T.getName().equals(To)) {
+							F.setBalance(F.getBalance()-Amount);
+							T.setBalance(T.getBalance()+Amount);
+							return "Money moved successfully";
+						}
 					}
 				}
 			}
+			return "Money has not been moved";
 		}
-		return "FAIL";
-	} 
-	
+	}
+
 	public String donateMoney(String from, Double amount){
 		for(Account f: accounts){
 			if(f.getName().equals(from)){
