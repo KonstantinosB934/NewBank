@@ -9,7 +9,7 @@ public class Customer extends User {
 
 	private String billingAddress;
 	private String deliveryAddress;
-	
+
 	private boolean frozen = false;
 
 	//bitcoin wallet
@@ -48,7 +48,7 @@ public class Customer extends User {
 	public void setDeliveryAddress(String deliveryAddress) {
 		this.deliveryAddress = deliveryAddress;
 	}
-	
+
 	public boolean freeze() {
 		this.frozen = !this.frozen;
 		return this.frozen;
@@ -96,7 +96,7 @@ public class Customer extends User {
 	}
 
 	public String moveMoney(String From, String To, Double Amount) {
-		
+
 		if(this.frozen) {
 			return "Your account is frozen";
 		} else {
@@ -115,6 +115,19 @@ public class Customer extends User {
 		}
 	}
 
+	public String donateMoney(String from, Double amount){
+		for(Account f: accounts){
+			if(f.getName().equals(from)){
+				if(amount < f.getBalance()) {
+					f.setBalance(f.getBalance() - amount);
+					return String.format("Your donation of %.2f has been successfully processed thank you!", amount);
+				} else
+					return "Insufficient funds for this transaction: "+f.getBalance();
+			}
+		}
+		return "FAIL";
+	}
+
 	public String delete(String myAccount) {
 		
 		for(Account A : accounts) {
@@ -129,9 +142,9 @@ public class Customer extends User {
 
 	@Override
 	public String toString() {
-		return  "Your details are :" + "\n" + getFirstName() + " " + getLastName() + " " +
-				"Billing Address: " + " " + billingAddress +
-				"Delivery Address: " + " " + deliveryAddress;
+		return  "{Firstname: " + getFirstName() + ", Lastname: " + getLastName() +
+				", Billing Address: " + billingAddress +
+				", Delivery Address: " + deliveryAddress + "}";
 	}
 
 	/**

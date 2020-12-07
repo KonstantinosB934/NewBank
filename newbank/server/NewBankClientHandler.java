@@ -23,12 +23,14 @@ public class NewBankClientHandler extends Thread{
 			"PAY",
 			"SHOWMYACCOUNTS",
 			"BUYBITCOIN",
+			"SELLBITCOIN",
 			"BITCOINPAY",
 			"OFFERMICROLOAN",
 			"SEARCHMICROLOAN",
 			"TAKEMICROLOAN",
 			"DELETECUSTOMER",
-			"FREEZECUSTOMER"
+			"FREEZECUSTOMER",
+			"REVOKEMICROLOAN"
 	);
 	
 	public NewBankClientHandler(Socket s) throws IOException {
@@ -55,11 +57,11 @@ public class NewBankClientHandler extends Thread{
 					out.println("Log In Successful");
 					out.println("What do you want to do? (LOGOFF to logoff, HELP for help)");
 					while (true) {
+						out.format("User(%s); type HELP, LOGOFF or an other COMMAND >> \n", userName);
 						String request = in.readLine();
 						try {
 							String[] requestCommand = request.split(" ");
 							if (commands.contains(requestCommand[0])) {
-								out.println("Request from " + user.getKey());
 								String response = bank.processRequest(user, request);
 								out.println(response);
 							} else if (request.trim().equalsIgnoreCase("logoff")) {
@@ -68,6 +70,8 @@ public class NewBankClientHandler extends Thread{
 								bank.help(user, out);
 							} else if (request.trim().isEmpty()) {
 								continue;
+							} else {
+								out.println("Request type not recognised.");
 							}
 						} catch (Exception e) {
 							out.println("Your request has failed: " + request);

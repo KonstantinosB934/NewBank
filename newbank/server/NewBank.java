@@ -6,97 +6,110 @@ import java.util.UUID;
 
 public class NewBank {
 
-	private static final NewBank bank = new NewBank();
-	private final HashMap<String, User> users;
-	private final HashMap<UUID, MicroLoan> microLoans;
+  private static final NewBank bank = new NewBank();
+  private final HashMap<String, User> users;
+  private final HashMap<UUID, MicroLoan> microLoans;
 
-	private NewBank() {
-		users = new HashMap<>();
-		microLoans = new HashMap<>();
-		addTestData();
-	}
+  private NewBank() {
+    users = new HashMap<>();
+    microLoans = new HashMap<>();
+    addTestData();
+  }
 
-	private void addTestData() {
-		Customer bhagy = new Customer("123", "Bhagyashree", "Patil");
-		bhagy.addAccount(new Account("Main", 1000.0));
-		bhagy.addAccount(new Account("Savings", 2000.0));
-		users.put("Bhagy", bhagy);
+  public static NewBank getBank() {
+    return bank;
+  }
 
-		Customer christina = new Customer("555", "Christina", "Keating");
-		christina.addAccount(new Account("Savings", 1500.0));
-		users.put("Christina", christina);
+  private void addTestData() {
+    Customer bhagy = new Customer("123", "Bhagyashree", "Patil");
+    bhagy.addAccount(new Account("Main", 1000.0));
+    bhagy.addAccount(new Account("Savings", 2000.0));
+    users.put("Bhagy", bhagy);
 
-		Customer john = new Customer("101", "John", "Benardis");
-		john.addAccount(new Account("Checking", 250.0));
-		users.put("John", john);
+    Customer christina = new Customer("555", "Christina", "Keating");
+    christina.addAccount(new Account("Savings", 1500.0));
+    users.put("Christina", christina);
 
-		BankEmployee max = new BankEmployee("123456", "Max", "Powers");
-		users.put("Max", max);
+    Customer john = new Customer("101", "John", "Benardis");
+    john.addAccount(new Account("Checking", 250.0));
+    users.put("John", john);
 
-		// Add new microloans from Bhagy and Christina
-		offerMicroLoan(bhagy, "OFFERMICROLOAN Main 200");
-		offerMicroLoan(christina, "OFFERMICROLOAN Savings 100");
-	}
-	
-	public static NewBank getBank() { return bank; }
+    BankEmployee max = new BankEmployee("123456", "Max", "Powers");
+    users.put("Max", max);
 
+    // Add new microloans from Bhagy and Christina
+    offerMicroLoan(bhagy, "OFFERMICROLOAN Main 200");
+    offerMicroLoan(christina, "OFFERMICROLOAN Savings 100");
+  }
 
-	public synchronized UserID checkLogInDetails(String userName, String password) {
-		if(users.containsKey(userName)) {
-			User user = users.get(userName);
-			if(user.getPassword().equals(password)){
-				return new UserID(userName);
-			}
-		}
-		return null;
-	}
+  public synchronized UserID checkLogInDetails(String userName, String password) {
+    if (users.containsKey(userName)) {
+      User user = users.get(userName);
+      if (user.getPassword().equals(password)) {
+        return new UserID(userName);
+      }
+    }
+    return null;
+  }
 
-	// commands from the NewBank user are processed in this method
-	public synchronized String processRequest(UserID userId, String request) throws Exception {
-		if(users.containsKey(userId.getKey())) {
-			User user = users.get(userId.getKey());
+  // commands from the NewBank user are processed in this method
+  public synchronized String processRequest(UserID userId, String request) throws Exception {
+    if (users.containsKey(userId.getKey())) {
+      User user = users.get(userId.getKey());
 
-			if (user instanceof Customer) {
-				//all customer related protocols
-				Customer customer = (Customer)user;
-				if (request.startsWith("MOVE ")) {
-					return moveMoney(customer, request);
-				}
+      if (user instanceof Customer) {
+        //all customer related protocols
+        Customer customer = (Customer) user;
+        if (request.startsWith("MOVE ")) {
+          return moveMoney(customer, request);
+        }
 
-				if (request.startsWith("UPDATE ")) {
-					return update(customer, request);
-				}
+        if (request.startsWith("UPDATE ")) {
+          return update(customer, request);
+        }
 
-				if (request.startsWith("NEWACCOUNT ")) {
-					return createAcc(customer, request);
-				}
-				
-				if (request.startsWith("DELETEACCOUNT ")) {
-					return deleteAccount(customer, request);
-				}
+        if (request.startsWith("NEWACCOUNT ")) {
+          return createAcc(customer, request);
+        }
 
-				if (request.startsWith("PAY ")) {
-					return payAmountToOtherCustomer(customer, request);
-				}
+        if (request.startsWith("DELETEACCOUNT ")) {
+          return deleteAccount(customer, request);
+        }
 
-				if ("BUYBITCOIN".equals(request.substring(0, "BUYBITCOIN".length()))) {
-					return buyBitcoin(customer, request);
+        if (request.startsWith("PAY ")) {
+          return payAmountToOtherCustomer(customer, request);
+        }
+
+        if ("BUYBITCOIN".equals(request.substring(0, "BUYBITCOIN".length()))) {
+          return buyBitcoin(customer, request);
+        }
+
+				if ("SELLBITCOIN".equals(request.substring(0, "SELLBITCOIN".length()))) {
+					return sellBitcoin(customer, request);
 				}
 
 				if ("BITCOINPAY".equals(request.substring(0, "BITCOINPAY".length()))) {
 					return bitcoinPay(customer, request);
 				}
 
-				if (request.startsWith("OFFERMICROLOAN ")) {
-					return offerMicroLoan(customer, request);
-				}
+        if (request.startsWith("REVOKEMICROLOAN ")) {
+          return revokeMicroLoan(customer, request);
+        }
 
-				if (request.equals("SEARCHMICROLOAN")) {
-					return showMicroLoans(customer);
-				}
+        if (request.startsWith("OFFERMICROLOAN ")) {
+          return offerMicroLoan(customer, request);
+        }
+
+        if (request.equals("SEARCHMICROLOAN")) {
+          return showMicroLoans(customer);
+        }
 
 				if (request.startsWith("TAKEMICROLOAN ")) {
 					return takeMicroLoan(customer, request);
+				}
+
+				if (request.startsWith("DONATE")) {
+					return donateMoney(customer, request);
 				}
 
 				if ("SHOWMYACCOUNTS".equals(request)) {
@@ -119,13 +132,13 @@ public class NewBank {
 		return "FAIL";
 	}
 
-	private String showMyAccounts(Customer customer) throws Exception {
-		try {
-			return customer.accountsToString();
-		} catch (Exception e) {
-			throw new Exception("Something went wrong when trying to show your account");
-		}
-	}
+  private String showMyAccounts(Customer customer) throws Exception {
+    try {
+      return customer.accountsToString();
+    } catch (Exception e) {
+      throw new Exception("Something went wrong when trying to show your account");
+    }
+  }
 
 	private String moveMoney(Customer customer, String request) throws Exception {
 		String[] movecommand = request.split(" ");
@@ -139,151 +152,165 @@ public class NewBank {
 		}
 	}
 
-	private String update(Customer customer, String request) throws Exception{
-		String[] updateCommand = request.split(" ");
+	private String donateMoney(Customer customer, String request) throws Exception {
+		String[] donateCommand = request.split(" ");
 		try {
-			String newPassword = updateCommand[1];
-			String confirmPassword = updateCommand[2];
-			return customer.update(newPassword,confirmPassword);
+			String from = donateCommand[1];
+			Double amount = Double.parseDouble(donateCommand[2]);
+			return customer.donateMoney(from, amount);
 		} catch (Exception e) {
-			throw new Exception("Something went wrong when trying to update the password");
+			throw new Exception("Something went wrong when trying donate");
 		}
 	}
 
-	private String createAcc(Customer customer, String request) throws Exception{
-		String[] createCommand = request.split(" ");
-		try {
-			String accountName = createCommand[1];
-			double openingBalance = Double.parseDouble(createCommand[2]);
+  private String update(Customer customer, String request) throws Exception {
+    String[] updateCommand = request.split(" ");
+    try {
+      String newPassword = updateCommand[1];
+      String confirmPassword = updateCommand[2];
+      return customer.update(newPassword, confirmPassword);
+    } catch (Exception e) {
+      throw new Exception("Something went wrong when trying to update the password");
+    }
+  }
 
-			return customer.addAccount(new Account (accountName, openingBalance));
-		} catch (Exception e) {
-			throw new Exception("Something went wrong when trying to create an account");
-		}
-	}
+  private String createAcc(Customer customer, String request) throws Exception {
+    String[] createCommand = request.split(" ");
+    try {
+      String accountName = createCommand[1];
+      double openingBalance = Double.parseDouble(createCommand[2]);
 
-	private String deleteCustomer(String request) throws Exception {
-		String[] deleteCommand = request.split(" ");
-		try {
-			String customerName = deleteCommand[1];
-			if(users.containsKey(customerName)) {
-				User user = users.get(customerName);
-				if (user instanceof Customer) {
-					users.remove(customerName);
-					return "SUCCESS";
-				} else {
-					return "FAIL";
-				}
-			} else {
-				return "FAIL";
-			}
-		} catch (Exception e)  {
-			throw new Exception("Something went wrong when trying to delete the customer name");
-		}
+      return customer.addAccount(new Account(accountName, openingBalance));
+    } catch (Exception e) {
+      throw new Exception("Something went wrong when trying to create an account");
+    }
+  }
 
-	}
+  private String deleteCustomer(String request) throws Exception {
+    String[] deleteCommand = request.split(" ");
+    try {
+      String customerName = deleteCommand[1];
+      if (users.containsKey(customerName)) {
+        User user = users.get(customerName);
+        if (user instanceof Customer) {
+          users.remove(customerName);
+          return "SUCCESS";
+        } else {
+          return "FAIL";
+        }
+      } else {
+        return "FAIL";
+      }
+    } catch (Exception e) {
+      throw new Exception("Something went wrong when trying to delete the customer name");
+    }
 
-	private String deleteAccount(Customer customer, String request) throws Exception {
-		String[] deleteCommand = request.split(" ");
-		try {
-			String myAccount = deleteCommand[1];
-			return customer.delete(myAccount);
-		} catch (Exception e) {
-			throw new Exception("Something went wrong when trying to delete the account");
-		}
+  }
 
-	}
+  private String deleteAccount(Customer customer, String request) throws Exception {
+    String[] deleteCommand = request.split(" ");
+    try {
+      String myAccount = deleteCommand[1];
+      return customer.delete(myAccount);
+    } catch (Exception e) {
+      throw new Exception("Something went wrong when trying to delete the account");
+    }
 
-	/**
-	 * Pay an amount to another customer of the bank. The outgoing account should be specified and
-	 * if the receiving customer or account cannot be identified or if there are no sufficient funds,
-	 * then the request should be rejected
-	 *
-	 * @param customer	The customer that the pay amount is paid from
-	 * @param request	The pay request as recorded from the CLI interface
-	 * @return 	"SUCCESS" if the pay request has been completed successfully. An error message will be
-	 * 			returned otherwise
-	 */
-	private String payAmountToOtherCustomer(Customer customer, String request) throws Exception{
-		String[] requestParameterArr = request.split(" ");
+  }
 
-		try {
-			// expected request format:
-			// PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>
-			if (requestParameterArr.length != 5) {
-				return String.format(
-						"Expected the following format for the pay command:\n\n" +
-								"PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>\n\n" +
-								"but the number of parameters found after PAY is %d",
-						requestParameterArr.length - 1
-				);
-			}
-			// Check if account exists
-			String accountName = requestParameterArr[1];
-			Account account = customer.getAccount(accountName);
-			if (account == null) {
-				return String.format("Account \"%s\" was not found", accountName);
-			}
-			// Check if recipient user and accounts exist
-			String recipientName = requestParameterArr[2];
-			User recipient;
-			if (users.containsKey(recipientName)) {
-				recipient = users.get(recipientName);
-			} else {
-				return String.format("Recipient \"%s\" not identified in NewBank customer records", recipientName);
-			}
-			if (!(recipient instanceof Customer)) {
-				return String.format("Recipient \"%s\" not identified in NewBank customer records", recipientName);
-			}
-			Customer recipientCustomer = (Customer) recipient;
-			String recipientAccountName = requestParameterArr[3];
-			Account recipientAccount = recipientCustomer.getAccount(recipientAccountName);
-			if (recipientAccount == null) {
-				return String.format(
-						"Account \"%s\" was not found for customer \"%s\"", recipientAccountName, recipientName
-				);
-			}
-			// Check if there are sufficient funds
-			double amount;
-			try {
-				amount = Double.parseDouble(requestParameterArr[4]);
-			} catch (NumberFormatException ignored) {
-				return String.format("Invalid value for transfer amount: \"%s\"", requestParameterArr[4]);
-			}
-			if (amount > account.getBalance()) {
-				return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
-			}
-			// Finally if all checks are OK, the amount can be transferred
-			account.setBalance(account.getBalance() - amount);
-			recipientAccount.setBalance(recipientAccount.getBalance() + amount);
-			return "SUCCESS";
+  /**
+   * Pay an amount to another customer of the bank. The outgoing account should be specified and if
+   * the receiving customer or account cannot be identified or if there are no sufficient funds,
+   * then the request should be rejected
+   *
+   * @param customer The customer that the pay amount is paid from
+   * @param request  The pay request as recorded from the CLI interface
+   * @return "SUCCESS" if the pay request has been completed successfully. An error message will be
+   * returned otherwise
+   */
+  private String payAmountToOtherCustomer(Customer customer, String request) throws Exception {
+    String[] requestParameterArr = request.split(" ");
 
-		} catch (Exception e) {
-			throw new Exception("Something went wrong when trying to pay money to another customer");
-		}
-	}
+    try {
+      // expected request format:
+      // PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>
+      if (requestParameterArr.length != 5) {
+        return String.format(
+            "Expected the following format for the pay command:\n\n" +
+                "PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>\n\n"
+                +
+                "but the number of parameters found after PAY is %d",
+            requestParameterArr.length - 1
+        );
+      }
+      // Check if account exists
+      String accountName = requestParameterArr[1];
+      Account account = customer.getAccount(accountName);
+      if (account == null) {
+        return String.format("Account \"%s\" was not found", accountName);
+      }
+      // Check if recipient user and accounts exist
+      String recipientName = requestParameterArr[2];
+      User recipient;
+      if (users.containsKey(recipientName)) {
+        recipient = users.get(recipientName);
+      } else {
+        return String
+            .format("Recipient \"%s\" not identified in NewBank customer records", recipientName);
+      }
+      if (!(recipient instanceof Customer)) {
+        return String
+            .format("Recipient \"%s\" not identified in NewBank customer records", recipientName);
+      }
+      Customer recipientCustomer = (Customer) recipient;
+      String recipientAccountName = requestParameterArr[3];
+      Account recipientAccount = recipientCustomer.getAccount(recipientAccountName);
+      if (recipientAccount == null) {
+        return String.format(
+            "Account \"%s\" was not found for customer \"%s\"", recipientAccountName, recipientName
+        );
+      }
+      // Check if there are sufficient funds
+      double amount;
+      try {
+        amount = Double.parseDouble(requestParameterArr[4]);
+      } catch (NumberFormatException ignored) {
+        return String.format("Invalid value for transfer amount: \"%s\"", requestParameterArr[4]);
+      }
+      if (amount > account.getBalance()) {
+        return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
+      }
+      // Finally if all checks are OK, the amount can be transferred
+      account.setBalance(account.getBalance() - amount);
+      recipientAccount.setBalance(recipientAccount.getBalance() + amount);
+      return "SUCCESS";
 
-	private String addCustomer(String request) throws Exception {
-		String[] addCommand = request.split(" ");
+    } catch (Exception e) {
+      throw new Exception("Something went wrong when trying to pay money to another customer");
+    }
+  }
 
-		try {
-			String customerName = addCommand[1];
-			String password = addCommand[2];
+  private String addCustomer(String request) throws Exception {
+    String[] addCommand = request.split(" ");
 
-			if(!users.containsKey(customerName)) {
+    try {
+      String customerName = addCommand[1];
+      String password = addCommand[2];
+
+			if (!users.containsKey(customerName)) {
 				Customer customer = new Customer(password);
 				users.put(customerName, customer);
 
 				return "You have successfully added '" + customerName + "'";
-			}
-			else
+			} else {
 				return "Sorry, customer already exists";
-		} catch (Exception e) {
-			throw new Exception("Something went wrong when trying to add a customer");
-		}
+			}
+    } catch (Exception e) {
+      throw new Exception("Something went wrong when trying to add a customer");
+    }
 
 	}
-	
+
 	private String freezeCustomer(String request) throws Exception {
 		String[] freezeCommand = request.split(" ");
 
@@ -314,49 +341,67 @@ public class NewBank {
 				out.println("Type SHOWMYACCOUNTS in capital letters exactly as shown");
 				out.println();
 
-				out.println("MOVE " + " : allows money to be transferred from one account to another account. To use this function: ");
-				out.println("Type MOVE in capital letters, followed by a space, followed by the amount in decimal figures," +
-						"followed the account name from which you are taking money out, and followed by the account name in which " +
-						"are transferring money into");
-				out.println();
+        out.println("MOVE "
+            + " : allows money to be transferred from one account to another account. To use this function: ");
+        out.println(
+            "Type MOVE in capital letters, followed by a space, followed by the amount in decimal figures,"
+                +
+                "followed the account name from which you are taking money out, and followed by the account name in which "
+                +
+                "are transferring money into");
+        out.println();
 
-				out.println("UPDATE " + " : allows password to be updated. To do this:  ");
-				out.println("Type UPDATE in capital letters, followed by a space, followed by the new password, and followed by " +
-						"the new password again to confirm it");
-				out.println();
+        out.println("UPDATE " + " : allows password to be updated. To do this:  ");
+        out.println(
+            "Type UPDATE in capital letters, followed by a space, followed by the new password, and followed by "
+                +
+                "the new password again to confirm it");
+        out.println();
 
-				out.println("NEWACCOUNT " + " : allows a new account to be created. To do this:  " );
-				out.println("Type NEWACCOUNT in capital letters as shown, followed by a space, followed by account name, and " +
-						"followed by the amount you want to deposit into the account in decimal number");
-				out.println();
+        out.println("NEWACCOUNT " + " : allows a new account to be created. To do this:  ");
+        out.println(
+            "Type NEWACCOUNT in capital letters as shown, followed by a space, followed by account name, and "
+                +
+                "followed by the amount you want to deposit into the account in decimal number");
+        out.println();
 
 				out.println("PAY " + " : allows you to transfer money from your account into another customer account. To do this :");
 				out.println("Type PAY in capital letters as shown, followed by a space, followed by your account name, followed by" +
 						"the recipient name, followed by the recipient account name, and followed by the amount in decimal number.");
 				out.println();
 
-				out.println("DELETEACCOUNT " + " : allows you to delete an account. To do this: ");
-				out.println("Type DELETEACCOUNT in capital letters as shown, followed by a space, followed by the account name " +
-						"you would like to delete.");
+				out.println("DONATE " + " : allows you to donate money from your account towards philanthropic initiatives. To do this : ");
+				out.println("Type DONATE in capital letters as shown, followed by a space, followed by your account name," +
+						" followed by the amount you wish to donate in decimal number");
 				out.println();
 
-			} else {
-				out.println("NEWCUSTOMER " + " : allows you to create a new customer on the system. To do this: ");
-				out.println("Type NEWCUSTOMER in capital letters as shown, followed by a space, followed by the customer name, " +
-						"and followed by a password");
-				out.println();
+        out.println("DELETEACCOUNT " + " : allows you to delete an account. To do this: ");
+        out.println(
+            "Type DELETEACCOUNT in capital letters as shown, followed by a space, followed by the account name "
+                +
+                "you would like to delete.");
+        out.println();
+
+      } else {
+        out.println(
+            "NEWCUSTOMER " + " : allows you to create a new customer on the system. To do this: ");
+        out.println(
+            "Type NEWCUSTOMER in capital letters as shown, followed by a space, followed by the customer name, "
+                +
+                "and followed by a password");
+        out.println();
 
 				out.println("DELETECUSTOMER " + " : allows you to delete a customer on the system. To do this :");
 				out.println("Type DELETECUSTOMER in capital letters as shown, followed by a space, followed by the customer name");
 				out.println();
-				
+
 				out.println("FREEZECUSTOMER " + " : allows you to toggle whether a customer's accounts are frozen. To do this :");
 				out.println("Type FREEZECUSTOMER in capital letters as shown, followed by a space, followed by the customer name");
 				out.println();
 			}
 
-		}
-	}
+    }
+  }
 
 	/**
 	 * Allows a customer to buy bitcoin with money from one of its accounts. If the customer
@@ -376,38 +421,38 @@ public class NewBank {
 			if (parameters.length != 3) {
 				return String.format(
 						"Expected the following format for the BUYBITCOIN command:\n\n" +
-								"BUYBITCOIN <SourceCustomerAccount> <Amount>\n\n" +
+								"BUYBITCOIN <SourceAccount> <Amount>\n\n" +
 								"but the number of parameters found after BUYBITCOIN is %d",
 						parameters.length - 1
 				);
 			}
 
-			//check if account exists
-			String accountName = parameters[1];
-			Account account = customer.getAccount(accountName);
-			if (account == null) {
-				return String.format("Account \"%s\" was not found", accountName);
-			}
+      //check if account exists
+      String accountName = parameters[1];
+      Account account = customer.getAccount(accountName);
+      if (account == null) {
+        return String.format("Account \"%s\" was not found", accountName);
+      }
 
-			//check if the customer already has a bitcoin wallet
-			if (customer.getBtcWallet() == null) {
-				customer.createBtcWallet();
-			}
+      //check if the customer already has a bitcoin wallet
+      if (customer.getBtcWallet() == null) {
+        customer.createBtcWallet();
+      }
 
-			//check the amount and verify account balance
-			double amount;
-			try {
-				amount = Double.parseDouble(parameters[2]);
-				if (amount < 0.0) {
-					return String
-							.format("Invalid (negative) value for transfer amount: \"%s\"", parameters[2]);
-				}
-			} catch (NumberFormatException ignored) {
-				return String.format("Invalid value for transfer amount: \"%s\"", parameters[2]);
-			}
-			if (amount > account.getBalance()) {
-				return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
-			}
+      //check the amount and verify account balance
+      double amount;
+      try {
+        amount = Double.parseDouble(parameters[2]);
+        if (amount < 0.0) {
+          return String
+              .format("Invalid (negative) value for transfer amount: \"%s\"", parameters[2]);
+        }
+      } catch (NumberFormatException ignored) {
+        return String.format("Invalid value for transfer amount: \"%s\"", parameters[2]);
+      }
+      if (amount > account.getBalance()) {
+        return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
+      }
 
 			//perform the move
 			if (customer.getBtcWallet().changeBitcoin(customer.getBtcWallet().getBtcEquivalent(amount))) {
@@ -422,37 +467,44 @@ public class NewBank {
 	}
 
 	/**
-	 * Allows a customer to transfer money from its own bitcoin wallet into another.
+	 * Allows a customer to sell bitcoin, receiving money into one of its accounts. If the customer
+	 * does not have a bitcoin wallet, the transactions fails.
+	 * If the specified bitcoin amount is not available, the transactions fails.
 	 *
-	 * @param customer The customer who executes the command and wants to pay via bitcoin into a
-	 *                 bitcoin wallet
+	 * @param customer The customer who executes the command and wants to sell bitcoin
 	 * @param request The complete CLI request which also contains all parameters
 	 * @return A message which indicates the transaction has been completed successfully or an error
 	 * message
 	 */
-	private String bitcoinPay(Customer customer, String request) {
+	private String sellBitcoin(Customer customer, String request) {
 		if (customer != null && request != null) {
 			String[] parameters = request.split(" ");
 			//check request format
 			if (parameters.length != 3) {
 				return String.format(
-						"Expected the following format for the BITCOINPAY command:\n\n" +
-								"BITCOINPAY <BitcoinAmount> <DestinationWallet> \n\n" +
-								"but the number of parameters found after BITCOINPAY is %d\n\n" +
-								"* <Destination-Person/Company>: NewBank.{NewBankUserName} for this bank's customers",
+						"Expected the following format for the SELLBITCOIN command:\n\n" +
+								"SELLBITCOIN <DestinationAccount> <Amount>\n\n" +
+								"but the number of parameters found after SELLBITCOIN is %d",
 						parameters.length - 1
 				);
 			}
 
-			//check if the customer has a bitcoin wallet
-			if (customer.getBtcWallet() == null) {
-				return "The current customer does not have a bitcoin wallet.";
+			//check if account exists
+			String accountName = parameters[1];
+			Account account = customer.getAccount(accountName);
+			if (account == null) {
+				return String.format("Account \"%s\" was not found", accountName);
 			}
 
-			//check the amount and verify bitcoin wallet balance
+			//check if the customer already has a bitcoin wallet
+			if (customer.getBtcWallet() == null) {
+				return "You do not have a bitcoin wallet.";
+			}
+
+			//check the amount and verify account balance
 			double amount;
 			try {
-				amount = Double.parseDouble(parameters[1]);
+				amount = Double.parseDouble(parameters[2]);
 				if (amount < 0.0) {
 					return String
 							.format("Invalid (negative) value for transfer amount: \"%s\"", parameters[2]);
@@ -461,115 +513,172 @@ public class NewBank {
 				return String.format("Invalid value for transfer amount: \"%s\"", parameters[2]);
 			}
 			if (amount > customer.getBtcWallet().getBitcoins()) {
-				return String.format("Insufficient balance for this transfer: %.8f",
-						customer.getBtcWallet().getBitcoins());
-			}
-
-			//check if destination person/company is also a customer of this bank
-			String recipientName = parameters[2];
-			Customer recipientCustomer = null;
-			if (recipientName.length() >= "NEWBANK.".length() && recipientName
-					.substring(0, "NEWBANK.".length()).toUpperCase().equals("NEWBANK.")) {
-				recipientName = recipientName.substring("NEWBANK.".length());
-				User recipient;
-				if (users.containsKey(recipientName)) {
-					recipient = users.get(recipientName);
-				} else {
-					return String
-							.format("Recipient \"%s\" not identified in NewBank user records", recipientName);
-				}
-				if (!(recipient instanceof Customer)) {
-					return String
-							.format("Recipient \"%s\" not identified in NewBank customer records", recipientName);
-				}
-				recipientCustomer = (Customer) recipient;
+				return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
 			}
 
 			//perform the move
-			if (recipientCustomer != null) {
-				if (recipientCustomer.getBtcWallet() == null) {
-					recipientCustomer.createBtcWallet();
-				}
-				if (!recipientCustomer.getBtcWallet().changeBitcoin(amount)) {
-					return "Error transferring bitcoins to recipient.";
-				}
-				if (!customer.getBtcWallet().changeBitcoin(-amount)) {
-					return "Error removing the bitcoins from the sender.";
-				}
+			if (customer.getBtcWallet().changeBitcoin(-amount)) {
+				account.setBalance(account.getBalance() + customer.getBtcWallet().getEquivalentToBtc(amount));
 			} else {
-				if (!customer.getBtcWallet().changeBitcoin(-amount)) {
-					return "Error removing the bitcoins from the sender.";
-				}
+				return "Error performing the transaction: Could not move the specified amount.";
 			}
-			return "Transaction complete: BitcoinWallet(" + customer
+			return "Transaction complete: Account(" + account.toString() + "), BitcoinWallet(" + customer
 					.getBtcWallet().toString() + ")";
 		}
 		return "Error processing request: Customer or request are invalid.";
 	}
 
-	/**
-	 * Offer a microloan of a specific amount from a customer to the other customers of the bank.
-	 * If there are no sufficient funds, then the request should be rejected
-	 *
-	 * @param customer	The customer that the microloan is created from
-	 * @param request	The offer microloan request as recorded from the CLI interface
-	 * @return 	"SUCCESS" if the pay request has been completed successfully. An error message will be
-	 * 			returned otherwise
-	 */
-	private String offerMicroLoan(Customer customer, String request) {
-		String[] requestParameterArr = request.split(" ");
-		// expected request format: OFFERMICROLOAN <Account> <Amount>
-		if (requestParameterArr.length != 3) {
-			return String.format(
-					"Expected the following format for the offer micro loan command:\n\n" +
-							"OFFERMICROLOAN <Account> <Amount>\n\n" +
-							"but the number of parameters found after OFFERMICROLOAN is %d",
-					requestParameterArr.length - 1
-			);
-		}
-		// Check if account exists
-		String accountName = requestParameterArr[1];
-		Account account = customer.getAccount(accountName);
-		if (account == null) {
-			return String.format("Account \"%s\" was not found", accountName);
-		}
-		// Check if there are sufficient funds
-		double amount;
-		try {
-			amount = Double.parseDouble(requestParameterArr[2]);
-		} catch (NumberFormatException ignored) {
-			return String.format("Invalid value for microloan amount: \"%s\"", requestParameterArr[2]);
-		}
-		if (amount > account.getBalance()) {
-			return String.format("Insufficient balance for this microloan: %.2f", account.getBalance());
-		}
-		// Add the microloan in the market place
-		MicroLoan microLoan = new MicroLoan(customer, amount);
-		this.microLoans.put(microLoan.microLoanID.getKey(), microLoan);
-		account.setBalance(account.getBalance() - amount);
-		return "Microloan added successfully";
-	}
+  /**
+   * Allows a customer to transfer money from its own bitcoin wallet into another.
+   *
+   * @param customer The customer who executes the command and wants to pay via bitcoin into a
+   *                 bitcoin wallet
+   * @param request  The complete CLI request which also contains all parameters
+   * @return A message which indicates the transaction has been completed successfully or an error
+   * message
+   */
+  private String bitcoinPay(Customer customer, String request) {
+    if (customer != null && request != null) {
+      String[] parameters = request.split(" ");
+      //check request format
+      if (parameters.length != 3) {
+        return String.format(
+            "Expected the following format for the BITCOINPAY command:\n\n" +
+                "BITCOINPAY <BitcoinAmount> <DestinationWallet> \n\n" +
+                "but the number of parameters found after BITCOINPAY is %d\n\n" +
+                "* <Destination-Person/Company>: NewBank.{NewBankUserName} for this bank's customers",
+            parameters.length - 1
+        );
+      }
 
-	/** Helper that returns a string with all the available microloans and their details */
-	private String showMicroLoans(Customer customer) {
-		StringBuilder loansStrBuild = new StringBuilder("Available Microloans\n");
-		loansStrBuild.append(new String(new char[loansStrBuild.length()-1]).replace("\0", "#"));
-		loansStrBuild.append("\nFrom\t||\tAmount\t||\tMicroLoanID\n");
-		for (UUID microLoanID : microLoans.keySet()) {
-			MicroLoan microLoan = microLoans.get(microLoanID);
-			if (!microLoan.getAvailability() || customer.equals(microLoan.getOwner())) {
-				continue;
-			}
-			loansStrBuild.append(String.format(
-					"%s %s\t||\t%.2f\t||\t%s\n",
-					microLoan.getOwner().getFirstName(),
-					microLoan.getOwner().getLastName(),
-					microLoan.getAmount(),
-					microLoan.getID().toString()
-			));
-		}
-		return loansStrBuild.toString();
-	}
+      //check if the customer has a bitcoin wallet
+      if (customer.getBtcWallet() == null) {
+        return "The current customer does not have a bitcoin wallet.";
+      }
+
+      //check the amount and verify bitcoin wallet balance
+      double amount;
+      try {
+        amount = Double.parseDouble(parameters[1]);
+        if (amount < 0.0) {
+          return String
+              .format("Invalid (negative) value for transfer amount: \"%s\"", parameters[2]);
+        }
+      } catch (NumberFormatException ignored) {
+        return String.format("Invalid value for transfer amount: \"%s\"", parameters[2]);
+      }
+      if (amount > customer.getBtcWallet().getBitcoins()) {
+        return String.format("Insufficient balance for this transfer: %.8f",
+            customer.getBtcWallet().getBitcoins());
+      }
+
+      //check if destination person/company is also a customer of this bank
+      String recipientName = parameters[2];
+      Customer recipientCustomer = null;
+      if (recipientName.length() >= "NEWBANK.".length() && recipientName
+          .substring(0, "NEWBANK.".length()).toUpperCase().equals("NEWBANK.")) {
+        recipientName = recipientName.substring("NEWBANK.".length());
+        User recipient;
+        if (users.containsKey(recipientName)) {
+          recipient = users.get(recipientName);
+        } else {
+          return String
+              .format("Recipient \"%s\" not identified in NewBank user records", recipientName);
+        }
+        if (!(recipient instanceof Customer)) {
+          return String
+              .format("Recipient \"%s\" not identified in NewBank customer records", recipientName);
+        }
+        recipientCustomer = (Customer) recipient;
+      }
+
+      //perform the move
+      if (recipientCustomer != null) {
+        if (recipientCustomer.getBtcWallet() == null) {
+          recipientCustomer.createBtcWallet();
+        }
+        if (!recipientCustomer.getBtcWallet().changeBitcoin(amount)) {
+          return "Error transferring bitcoins to recipient.";
+        }
+        if (!customer.getBtcWallet().changeBitcoin(-amount)) {
+          return "Error removing the bitcoins from the sender.";
+        }
+      } else {
+        if (!customer.getBtcWallet().changeBitcoin(-amount)) {
+          return "Error removing the bitcoins from the sender.";
+        }
+      }
+      return "Transaction complete: BitcoinWallet(" + customer
+          .getBtcWallet().toString() + ")";
+    }
+    return "Error processing request: Customer or request are invalid.";
+  }
+
+  /**
+   * Offer a microloan of a specific amount from a customer to the other customers of the bank. If
+   * there are no sufficient funds, then the request should be rejected
+   *
+   * @param customer The customer that the microloan is created from
+   * @param request  The offer microloan request as recorded from the CLI interface
+   * @return "SUCCESS" if the pay request has been completed successfully. An error message will be
+   * returned otherwise
+   */
+  private String offerMicroLoan(Customer customer, String request) {
+    String[] requestParameterArr = request.split(" ");
+    // expected request format: OFFERMICROLOAN <SourceCustomerAccount> <Amount>
+    if (requestParameterArr.length != 3) {
+      return String.format(
+          "Expected the following format for the offer micro loan command:\n\n" +
+              "OFFERMICROLOAN <Account> <Amount>\n\n" +
+              "but the number of parameters found after OFFERMICROLOAN is %d",
+          requestParameterArr.length - 1
+      );
+    }
+    // Check if account exists
+    String accountName = requestParameterArr[1];
+    Account account = customer.getAccount(accountName);
+    if (account == null) {
+      return String.format("Account \"%s\" was not found", accountName);
+    }
+    // Check if there are sufficient funds
+    double amount;
+    try {
+      amount = Double.parseDouble(requestParameterArr[2]);
+    } catch (NumberFormatException ignored) {
+      return String.format("Invalid value for microloan amount: \"%s\"", requestParameterArr[2]);
+    }
+    if (amount > account.getBalance()) {
+      return String.format("Insufficient balance for this microloan: %.2f", account.getBalance());
+    }
+    // Add the microloan in the market place
+    MicroLoan microLoan = new MicroLoan(customer, amount);
+    this.microLoans.put(microLoan.microLoanID.getKey(), microLoan);
+    account.setBalance(account.getBalance() - amount);
+    return "Microloan added successfully";
+  }
+
+  /**
+   * Helper that returns a string with all the available microloans and their details
+   */
+  private String showMicroLoans(Customer customer) {
+    StringBuilder loansStrBuild = new StringBuilder("Available Microloans\n");
+    loansStrBuild.append(new String(new char[loansStrBuild.length() - 1]).replace("\0", "#"));
+    loansStrBuild.append("\nFrom\t||\tAmount\t||\tMicroLoanID\n");
+    for (UUID microLoanID : microLoans.keySet()) {
+      MicroLoan microLoan = microLoans.get(microLoanID);
+      if (!microLoan.getAvailability() || customer.equals(microLoan.getOwner())) {
+        continue;
+      }
+      loansStrBuild.append(String.format(
+          "%s %s\t||\t%.2f\t||\t%s\n",
+          microLoan.getOwner().getFirstName(),
+          microLoan.getOwner().getLastName(),
+          microLoan.getAmount(),
+          microLoan.getID().toString()
+      ));
+    }
+    return loansStrBuild.toString();
+  }
 
 	/**
 	 * Borrow the full or partial amount from a microloan.
@@ -630,4 +739,56 @@ public class NewBank {
 		return String.format("Successfully claimed a microloan for %.2f", amount);
 	}
 
+  /**
+   * Revokes a microloan the specified customer has offered and which has not been taken yet.
+   *
+   * @param customer The customer the microloan offered
+   * @param request  The revoke microloan request as recorded from the CLI interface
+   * @return "SUCCESS" if the pay request has been completed successfully. An error message will be
+   * returned otherwise
+   */
+  private String revokeMicroLoan(Customer customer, String request) {
+    String[] requestParameterArr = request.split(" ");
+    //expected request format: REVOKEMICROLOAN <SourceCustomerAccount> <Amount>
+    if (requestParameterArr.length != 3) {
+      return String.format(
+          "Expected the following format for the offer micro loan command:\n\n" +
+              "REVOKEMICROLOAN <MicroLoanId> <Account>\n\n" +
+              "but the number of parameters found after REVOKEMICROLOAN is %d",
+          requestParameterArr.length - 1
+      );
+    }
+
+    //check if account exists
+    String accountName = requestParameterArr[2];
+    Account account = customer.getAccount(accountName);
+    if (account == null) {
+      return String.format("Account \"%s\" was not found", accountName);
+    }
+
+    //check if the micro loan is actually offered by the customer and is not yet taken
+		String uuidString = requestParameterArr[1];
+		UUID uuid = null;
+    try {
+    	uuid = UUID.fromString(uuidString);
+		} catch (IllegalArgumentException iae) {
+
+		}
+		MicroLoan loan = null;
+    if (uuid != null) {
+			loan = this.microLoans.getOrDefault(uuid, null);
+		}
+		if (loan == null) {
+			return String.format("Micro loan was not found: \"%s\"", uuid);
+		}
+		if (!loan.isAvailable) {
+			return String.format("Micro loan is already taken by: \"%s\"", loan.getReceiver());
+		}
+
+		//revoke the micro loan
+		account.setBalance(account.getBalance() + loan.getAmount());
+		this.microLoans.remove(uuid);
+
+    return "SUCCESS";
+  }
 }
