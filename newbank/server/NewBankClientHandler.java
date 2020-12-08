@@ -19,7 +19,6 @@ public class NewBankClientHandler extends Thread{
 			"UPDATE",
 			"NEWACCOUNT",
 			"DELETEACCOUNT",
-			"DELETEACCOUNT",
 			"PAY",
 			"SHOWMYACCOUNTS",
 			"BUYBITCOIN",
@@ -30,7 +29,8 @@ public class NewBankClientHandler extends Thread{
 			"TAKEMICROLOAN",
 			"DELETECUSTOMER",
 			"FREEZECUSTOMER",
-			"REVOKEMICROLOAN"
+			"REVOKEMICROLOAN",
+			"CHANGECUSTOMER"
 	);
 	
 	public NewBankClientHandler(Socket s) throws IOException {
