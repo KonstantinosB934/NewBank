@@ -108,6 +108,10 @@ public class NewBank {
 					return takeMicroLoan(customer, request);
 				}
 
+				if (request.startsWith("CHANGECUSTOMER ")) {
+					return changeCustomer(customer, request);
+				}
+
 				if (request.startsWith("DONATE")) {
 					return donateMoney(customer, request);
 				}
@@ -174,11 +178,24 @@ public class NewBank {
     }
   }
 
-  private String createAcc(Customer customer, String request) throws Exception {
-    String[] createCommand = request.split(" ");
-    try {
-      String accountName = createCommand[1];
-      double openingBalance = Double.parseDouble(createCommand[2]);
+	private String changeCustomer(Customer customer, String request) throws Exception{
+		String[] changeCommand = request.split(" ");
+		try {
+			String firstName = changeCommand[1];
+			String lastName = changeCommand[2];
+			customer.setFirstName(firstName);
+			customer.setLastName(lastName);
+			return "Name changed to " + customer.getFirstName() + " " + customer.getLastName();
+		} catch (Exception e) {
+			throw new Exception("Something went wrong when trying to update the customer name");
+		}
+	}
+
+	private String createAcc(Customer customer, String request) throws Exception{
+		String[] createCommand = request.split(" ");
+		try {
+			String accountName = createCommand[1];
+			double openingBalance = Double.parseDouble(createCommand[2]);
 
       return customer.addAccount(new Account(accountName, openingBalance));
     } catch (Exception e) {
@@ -375,12 +392,15 @@ public class NewBank {
 						" followed by the amount you wish to donate in decimal number");
 				out.println();
 
-        out.println("DELETEACCOUNT " + " : allows you to delete an account. To do this: ");
-        out.println(
-            "Type DELETEACCOUNT in capital letters as shown, followed by a space, followed by the account name "
-                +
-                "you would like to delete.");
-        out.println();
+				out.println("DELETEACCOUNT " + " : allows you to delete an account. To do this: ");
+				out.println("Type DELETEACCOUNT in capital letters as shown, followed by a space, followed by the account name " +
+						"you would like to delete.");
+				out.println();
+
+				out.println("CHANGECUSTOMER " + " : allows you to change your name. To do this: ");
+				out.println("Type CHANGECUSTOMER in capital letters as shown, followed by a space, followed by the new firstname " +
+						", followed by a space, followed by the new surname.");
+				out.println();
 
       } else {
         out.println(
