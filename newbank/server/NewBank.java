@@ -1,46 +1,130 @@
 package newbank.server;
 
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 public class NewBank {
 
-  private static final NewBank bank = new NewBank();
-  private final HashMap<String, User> users;
-  private final HashMap<UUID, MicroLoan> microLoans;
+  private static final NewBank bank = null;
 
-  private NewBank() {
+	private final HashMap<String, User> users;
+  private final HashMap<UUID, MicroLoan> microLoans;
+	private final String customersCSVPath = "bankData/customers.csv";
+	private final String employeesCSVPath = "bankData/employees.csv";
+	private final String accountsCSVPath = "bankData/accounts.csv";
+	private final String microloansCSVPath = "bankData/microloans.csv";
+
+  private NewBank() throws IOException {
     users = new HashMap<>();
     microLoans = new HashMap<>();
-    addTestData();
+    readBankData();
   }
 
   public static NewBank getBank() {
     return bank;
   }
 
-  private void addTestData() {
-    Customer bhagy = new Customer("123", "Bhagyashree", "Patil");
-    bhagy.addAccount(new Account("Main", 1000.0));
-    bhagy.addAccount(new Account("Savings", 2000.0));
-    users.put("Bhagy", bhagy);
+	/**
+	 * Helper to read a CSV file and return the rows as a list of string arrays. The headers are ignored
+	 * @param pathToCsv The path to the CSV to read
+	 * @return The rows of the CSV file as a list of string arrays
+	 * @throws IOException
+	 */
+  private List<String[]> readCSV (String pathToCsv) throws IOException {
+		List<String[]> rows = new LinkedList<>();
+		BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
+		String row;
+		int rowCount = 0;
 
-    Customer christina = new Customer("555", "Christina", "Keating");
-    christina.addAccount(new Account("Savings", 1500.0));
-    users.put("Christina", christina);
+		while ((row = csvReader.readLine()) != null) {
+			String[] data = row.split(",");
+			if (rowCount++ > 0) {
+				rows.add(data);
+			}
+		}
 
-    Customer john = new Customer("101", "John", "Benardis");
-    john.addAccount(new Account("Checking", 250.0));
-    users.put("John", john);
+		csvReader.close();
+		return rows;
+	}
 
-    BankEmployee max = new BankEmployee("123456", "Max", "Powers");
-    users.put("Max", max);
+	/**
+	 * Helper to save list of string arrays to a CSV file.
+	 * @param outputRows The rows of the CSV file
+	 * @param pathToCsv The path to the CSV file
+	 * @throws IOException
+	 */
+	private void saveCSV (List<String[]> outputRows, String pathToCsv) throws IOException {
+		FileWriter csvWriter = new FileWriter(pathToCsv);
 
-    // Add new microloans from Bhagy and Christina
-    offerMicroLoan(bhagy, "OFFERMICROLOAN Main 200");
-    offerMicroLoan(christina, "OFFERMICROLOAN Savings 100");
+		for (String[] rowData : outputRows) {
+			csvWriter.append(String.join(",", rowData));
+			csvWriter.append("\n");
+		}
+
+		csvWriter.flush();
+		csvWriter.close();
+	}
+
+  private void readBankData() throws IOException {
+		// Read the customer data
+  	List<String[]> customerRows = readCSV(customersCSVPath);
+  	for (String[] customerRow : customerRows) {
+			users.put(customerRow[0], new Customer(customerRow[1], customerRow[2], customerRow[3]));
+		}
+  	// Read the employee data
+		List<String[]> employeeRows = readCSV(employeesCSVPath);
+		for (String[] employeeRow : employeeRows) {
+			users.put(employeeRow[0], new BankEmployee(employeeRow[1], employeeRow[2], employeeRow[3]));
+		}
+		// Read the account data
+		List<String[]> accountRows = readCSV(accountsCSVPath);
+		for (String[] accountRow : accountRows) {
+			((Customer) users.get(accountRow[0])).addAccount(new Account(accountRow[1], Double.parseDouble(accountRow[2])));
+		}
+		// Read the microloan data
+		List<String[]> microloanRows = readCSV(microloansCSVPath);
+		for (String[] microloanRow : microloanRows) {
+			MicroLoanID microLoanID = new MicroLoanID(microloanRow[0]);
+			double amount = Double.parseDouble(microloanRow[1]);
+			Customer owner = (Customer) users.get(microloanRow[2]);
+			Customer receiver;
+			if (microloanRow[3].length() > 0) {
+				receiver = (Customer) users.get(microloanRow[3]);
+			} else {
+				receiver = null;
+			}
+			boolean isAvailable = microloanRow[4].equals("1");
+			MicroLoan microLoan = new MicroLoan(microLoanID, owner, amount, isAvailable, receiver);
+			this.microLoans.put(microLoan.microLoanID.getKey(), microLoan);
+		}
   }
+
+  private void saveBankData() throws IOException {
+		// Save the customer, employee and account data
+		List<String[]> customerRows = new LinkedList<>();
+		customerRows.add(new String[]{"UserName", "Password", "FirstName", "LastName"});
+		List<String[]> employeeRows = new LinkedList<>();
+		employeeRows.add(new String[]{"UserName", "Password", "FirstName", "LastName"});
+		List<String[]> accountRows = new LinkedList<>();
+		accountRows.add(new String[]{"UserName", "AccountName", "Balance"});
+		for (String userName : this.users.keySet()) {
+			User user = this.users.get(userName);
+			if (user instanceof Customer) {
+				customerRows.add(new String[]{userName, user.getPassword(), user.getFirstName(), user.getLastName()});
+				for (Account account : ((Customer) user).getAllAccounts()) {
+					accountRows.add(new String[]{userName, account.getName(), String.valueOf(account.getBalance())});
+				}
+			} else {
+				employeeRows.add(new String[]{userName, user.getPassword(), user.getFirstName(), user.getLastName()});
+			}
+		}
+		saveCSV(customerRows, this.customersCSVPath);
+		saveCSV(employeeRows, this.employeesCSVPath);
+		saveCSV(accountRows, this.accountsCSVPath);
+	}
 
   public synchronized UserID checkLogInDetails(String userName, String password) {
     if (users.containsKey(userName)) {
