@@ -30,7 +30,9 @@ public class NewBankClientHandler extends Thread{
 			"DELETECUSTOMER",
 			"FREEZECUSTOMER",
 			"REVOKEMICROLOAN",
-			"CHANGECUSTOMER"
+			"CHANGECUSTOMER",
+		        "DONATE",
+			"HISTORY"
 	);
 	
 	public NewBankClientHandler(Socket s) throws IOException {
