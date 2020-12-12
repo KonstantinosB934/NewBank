@@ -115,6 +115,10 @@ public class NewBank {
 				if (request.startsWith("DONATE")) {
 					return donateMoney(customer, request);
 				}
+	                        
+	                        if (request.startsWith("HISTORY")) {
+                                      return history(customer, request);
+                                 }
 
 				if ("SHOWMYACCOUNTS".equals(request)) {
 					return showMyAccounts(customer);
@@ -155,6 +159,16 @@ public class NewBank {
 			throw new Exception("Something went wrong when trying to move money");
 		}
 	}
+	
+      private String history(Customer customer, String request) throws Exception {
+              String[] historyCommand = request.split(" ");
+              try {
+                    String accountName = historyCommand[1];
+                    return customer.transactionRecord(accountName);
+             } catch (Exception e) {
+                      throw new Exception("Something went wrong when trying to show your account");
+             }
+       }
 
 	private String donateMoney(Customer customer, String request) throws Exception {
 		String[] donateCommand = request.split(" ");
@@ -298,6 +312,8 @@ public class NewBank {
         return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
       }
       // Finally if all checks are OK, the amount can be transferred
+      account.addTransaction("Payment made: "+ -amount);
+      recipientAccount.addTransaction("Payment received: " + amount);
       account.setBalance(account.getBalance() - amount);
       recipientAccount.setBalance(recipientAccount.getBalance() + amount);
       return "SUCCESS";
@@ -390,7 +406,11 @@ public class NewBank {
 				out.println("DONATE " + " : allows you to donate money from your account towards philanthropic initiatives. To do this : ");
 				out.println("Type DONATE in capital letters as shown, followed by a space, followed by your account name," +
 						" followed by the amount you wish to donate in decimal number");
-				out.println();
+				out.println(); 
+				
+				out.println("HISTORY " + " : allows you to view transaction history of account. To do this : ");
+                                out.println("Type HISTORY in capital letters as shown, followed by a space, followed by your account name.");
+                                out.println();
 
 				out.println("DELETEACCOUNT " + " : allows you to delete an account. To do this: ");
 				out.println("Type DELETEACCOUNT in capital letters as shown, followed by a space, followed by the account name " +
@@ -477,6 +497,7 @@ public class NewBank {
 			//perform the move
 			if (customer.getBtcWallet().changeBitcoin(customer.getBtcWallet().getBtcEquivalent(amount))) {
 				account.setBalance(account.getBalance() - amount);
+				account.addTransaction("Bitcoin purchase: "+ -amount);
 			} else {
 				return "Error performing the transaction: Could not move the specified amount.";
 			}
@@ -539,6 +560,7 @@ public class NewBank {
 			//perform the move
 			if (customer.getBtcWallet().changeBitcoin(-amount)) {
 				account.setBalance(account.getBalance() + customer.getBtcWallet().getEquivalentToBtc(amount));
+				account.addTransaction("Bitcoin sale: " + amount);
 			} else {
 				return "Error performing the transaction: Could not move the specified amount.";
 			}
@@ -674,6 +696,7 @@ public class NewBank {
     MicroLoan microLoan = new MicroLoan(customer, amount);
     this.microLoans.put(microLoan.microLoanID.getKey(), microLoan);
     account.setBalance(account.getBalance() - amount);
+    account.addTransaction("MicroLoan on offer: " + amount);	  
     return "Microloan added successfully";
   }
 
@@ -754,6 +777,7 @@ public class NewBank {
 		}
 		// Claim the amount from the microloan
 		account.setBalance(account.getBalance() + amount);
+		account.addTransaction("MicroLoan: " + amount);
 		microLoan.setAmount(amount);
 		microLoan.assignToReceiver(customer);
 		return String.format("Successfully claimed a microloan for %.2f", amount);
