@@ -86,6 +86,10 @@ public class Customer extends User {
 		return null;
 	}
 
+	/** Return all the customer accounts*/
+	public ArrayList<Account> getAllAccounts() { return this.accounts; }
+
+
 	public String update(String newPassword, String confirmPassword){
 			if(newPassword.matches(confirmPassword)){
 				setPassword(newPassword);

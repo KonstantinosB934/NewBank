@@ -28,6 +28,14 @@ public class MicroLoan {
 		this.receiver = null;
 	}
 
+	public MicroLoan(MicroLoanID microLoanID, Customer owner, double amount, boolean isAvailable, Customer receiver) {
+		this.amount = amount;
+		this.microLoanID = microLoanID;
+		this.owner = owner;
+		this.isAvailable = isAvailable;
+		this.receiver = receiver;
+	}
+
 	/**
 	 * Assign the loan to a receiver customer
 	 * @param receiver The customer that receives the loan
