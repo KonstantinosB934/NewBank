@@ -29,10 +29,10 @@ public class NewBank {
   private final HashMap<UUID, MicroLoan> microLoans;
   private final HashMap<String, Double> transferLimit;
   private final List<String> paysPendingApproval;
-	private final String customersCSVPath = "bankData/customers.csv";
-	private final String employeesCSVPath = "bankData/employees.csv";
-	private final String accountsCSVPath = "bankData/accounts.csv";
-	private final String microloansCSVPath = "bankData/microloans.csv";
+  private final String customersCSVPath = "bankData/customers.csv";
+  private final String employeesCSVPath = "bankData/employees.csv";
+  private final String accountsCSVPath = "bankData/accounts.csv";
+  private final String microloansCSVPath = "bankData/microloans.csv";
 
   private NewBank() throws IOException {
     users = new HashMap<>();
@@ -46,104 +46,111 @@ public class NewBank {
     return bank;
   }
 
-	/**
-	 * Helper to read a CSV file and return the rows as a list of string arrays. The headers are ignored
-	 * @param pathToCsv The path to the CSV to read
-	 * @return The rows of the CSV file as a list of string arrays
-	 * @throws IOException
-	 */
-  private List<String[]> readCSV (String pathToCsv) throws IOException {
-		List<String[]> rows = new LinkedList<>();
-		BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
-		String row;
-		int rowCount = 0;
+  /**
+   * Helper to read a CSV file and return the rows as a list of string arrays. The headers are
+   * ignored
+   *
+   * @param pathToCsv The path to the CSV to read
+   * @return The rows of the CSV file as a list of string arrays
+   * @throws IOException
+   */
+  private List<String[]> readCSV(String pathToCsv) throws IOException {
+    List<String[]> rows = new LinkedList<>();
+    BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
+    String row;
+    int rowCount = 0;
 
-		while ((row = csvReader.readLine()) != null) {
-			String[] data = row.split(",");
-			if (rowCount++ > 0) {
-				rows.add(data);
-			}
-		}
+    while ((row = csvReader.readLine()) != null) {
+      String[] data = row.split(",");
+      if (rowCount++ > 0) {
+        rows.add(data);
+      }
+    }
 
-		csvReader.close();
-		return rows;
-	}
+    csvReader.close();
+    return rows;
+  }
 
-	/**
-	 * Helper to save list of string arrays to a CSV file.
-	 * @param outputRows The rows of the CSV file
-	 * @param pathToCsv The path to the CSV file
-	 * @throws IOException
-	 */
-	private void saveCSV (List<String[]> outputRows, String pathToCsv) throws IOException {
-		FileWriter csvWriter = new FileWriter(pathToCsv);
+  /**
+   * Helper to save list of string arrays to a CSV file.
+   *
+   * @param outputRows The rows of the CSV file
+   * @param pathToCsv  The path to the CSV file
+   * @throws IOException
+   */
+  private void saveCSV(List<String[]> outputRows, String pathToCsv) throws IOException {
+    FileWriter csvWriter = new FileWriter(pathToCsv);
 
-		for (String[] rowData : outputRows) {
-			csvWriter.append(String.join(",", rowData));
-			csvWriter.append("\n");
-		}
+    for (String[] rowData : outputRows) {
+      csvWriter.append(String.join(",", rowData));
+      csvWriter.append("\n");
+    }
 
-		csvWriter.flush();
-		csvWriter.close();
-	}
+    csvWriter.flush();
+    csvWriter.close();
+  }
 
   private void readBankData() throws IOException {
-		// Read the customer data
-  	List<String[]> customerRows = readCSV(customersCSVPath);
-  	for (String[] customerRow : customerRows) {
-			users.put(customerRow[0], new Customer(customerRow[1], customerRow[2], customerRow[3]));
-		}
-  	// Read the employee data
-		List<String[]> employeeRows = readCSV(employeesCSVPath);
-		for (String[] employeeRow : employeeRows) {
-			users.put(employeeRow[0], new BankEmployee(employeeRow[1], employeeRow[2], employeeRow[3]));
-		}
-		// Read the account data
-		List<String[]> accountRows = readCSV(accountsCSVPath);
-		for (String[] accountRow : accountRows) {
-			((Customer) users.get(accountRow[0])).addAccount(new Account(accountRow[1], Double.parseDouble(accountRow[2])));
-		}
-		// Read the microloan data
-		List<String[]> microloanRows = readCSV(microloansCSVPath);
-		for (String[] microloanRow : microloanRows) {
-			MicroLoanID microLoanID = new MicroLoanID(microloanRow[0]);
-			double amount = Double.parseDouble(microloanRow[1]);
-			Customer owner = (Customer) users.get(microloanRow[2]);
-			Customer receiver;
-			if (microloanRow[3].length() > 0) {
-				receiver = (Customer) users.get(microloanRow[3]);
-			} else {
-				receiver = null;
-			}
-			boolean isAvailable = microloanRow[4].equals("1");
-			MicroLoan microLoan = new MicroLoan(microLoanID, owner, amount, isAvailable, receiver);
-			this.microLoans.put(microLoan.microLoanID.getKey(), microLoan);
-		}
+    // Read the customer data
+    List<String[]> customerRows = readCSV(customersCSVPath);
+    for (String[] customerRow : customerRows) {
+      users.put(customerRow[0], new Customer(customerRow[1], customerRow[2], customerRow[3]));
+    }
+    // Read the employee data
+    List<String[]> employeeRows = readCSV(employeesCSVPath);
+    for (String[] employeeRow : employeeRows) {
+      users.put(employeeRow[0], new BankEmployee(employeeRow[1], employeeRow[2], employeeRow[3]));
+    }
+    // Read the account data
+    List<String[]> accountRows = readCSV(accountsCSVPath);
+    for (String[] accountRow : accountRows) {
+      ((Customer) users.get(accountRow[0]))
+          .addAccount(new Account(accountRow[1], Double.parseDouble(accountRow[2])));
+    }
+    // Read the microloan data
+    List<String[]> microloanRows = readCSV(microloansCSVPath);
+    for (String[] microloanRow : microloanRows) {
+      MicroLoanID microLoanID = new MicroLoanID(microloanRow[0]);
+      double amount = Double.parseDouble(microloanRow[1]);
+      Customer owner = (Customer) users.get(microloanRow[2]);
+      Customer receiver;
+      if (microloanRow[3].length() > 0) {
+        receiver = (Customer) users.get(microloanRow[3]);
+      } else {
+        receiver = null;
+      }
+      boolean isAvailable = microloanRow[4].equals("1");
+      MicroLoan microLoan = new MicroLoan(microLoanID, owner, amount, isAvailable, receiver);
+      this.microLoans.put(microLoan.microLoanID.getKey(), microLoan);
+    }
   }
 
   private void saveBankData() throws IOException {
-		// Save the customer, employee and account data
-		List<String[]> customerRows = new LinkedList<>();
-		customerRows.add(new String[]{"UserName", "Password", "FirstName", "LastName"});
-		List<String[]> employeeRows = new LinkedList<>();
-		employeeRows.add(new String[]{"UserName", "Password", "FirstName", "LastName"});
-		List<String[]> accountRows = new LinkedList<>();
-		accountRows.add(new String[]{"UserName", "AccountName", "Balance"});
-		for (String userName : this.users.keySet()) {
-			User user = this.users.get(userName);
-			if (user instanceof Customer) {
-				customerRows.add(new String[]{userName, user.getPassword(), user.getFirstName(), user.getLastName()});
-				for (Account account : ((Customer) user).getAllAccounts()) {
-					accountRows.add(new String[]{userName, account.getName(), String.valueOf(account.getBalance())});
-				}
-			} else {
-				employeeRows.add(new String[]{userName, user.getPassword(), user.getFirstName(), user.getLastName()});
-			}
-		}
-		saveCSV(customerRows, this.customersCSVPath);
-		saveCSV(employeeRows, this.employeesCSVPath);
-		saveCSV(accountRows, this.accountsCSVPath);
-	}
+    // Save the customer, employee and account data
+    List<String[]> customerRows = new LinkedList<>();
+    customerRows.add(new String[]{"UserName", "Password", "FirstName", "LastName"});
+    List<String[]> employeeRows = new LinkedList<>();
+    employeeRows.add(new String[]{"UserName", "Password", "FirstName", "LastName"});
+    List<String[]> accountRows = new LinkedList<>();
+    accountRows.add(new String[]{"UserName", "AccountName", "Balance"});
+    for (String userName : this.users.keySet()) {
+      User user = this.users.get(userName);
+      if (user instanceof Customer) {
+        customerRows.add(
+            new String[]{userName, user.getPassword(), user.getFirstName(), user.getLastName()});
+        for (Account account : ((Customer) user).getAllAccounts()) {
+          accountRows
+              .add(new String[]{userName, account.getName(), String.valueOf(account.getBalance())});
+        }
+      } else {
+        employeeRows.add(
+            new String[]{userName, user.getPassword(), user.getFirstName(), user.getLastName()});
+      }
+    }
+    saveCSV(customerRows, this.customersCSVPath);
+    saveCSV(employeeRows, this.employeesCSVPath);
+    saveCSV(accountRows, this.accountsCSVPath);
+  }
 
   public synchronized UserID checkLogInDetails(String userName, String password) {
     if (users.containsKey(userName)) {
@@ -215,13 +222,13 @@ public class NewBank {
           return changeCustomer(customer, request);
         }
 
-				if (request.startsWith("DONATE")) {
-					return donateMoney(customer, request);
-				}
+        if (request.startsWith("DONATE")) {
+          return donateMoney(customer, request);
+        }
 
-	                        if (request.startsWith("HISTORY")) {
-                                      return history(customer, request);
-                                 }
+        if (request.startsWith("HISTORY")) {
+          return history(customer, request);
+        }
 
         if ("SHOWMYACCOUNTS".equals(request)) {
           return showMyAccounts(customer);
@@ -254,27 +261,27 @@ public class NewBank {
     }
   }
 
-	private String moveMoney(Customer customer, String request) throws Exception {
-		String[] movecommand = request.split(" ");
-		try {
-			String From = movecommand[2];
-			String To = movecommand[3];
-			Double Amount = Double.parseDouble(movecommand[1]);
-			return customer.moveMoney(From, To, Amount);
-		} catch (Exception e) {
-			throw new Exception("Something went wrong when trying to move money");
-		}
-	}
+  private String moveMoney(Customer customer, String request) throws Exception {
+    String[] movecommand = request.split(" ");
+    try {
+      String From = movecommand[2];
+      String To = movecommand[3];
+      Double Amount = Double.parseDouble(movecommand[1]);
+      return customer.moveMoney(From, To, Amount);
+    } catch (Exception e) {
+      throw new Exception("Something went wrong when trying to move money");
+    }
+  }
 
-      private String history(Customer customer, String request) throws Exception {
-              String[] historyCommand = request.split(" ");
-              try {
-                    String accountName = historyCommand[1];
-                    return customer.transactionRecord(accountName);
-             } catch (Exception e) {
-                      throw new Exception("Something went wrong when trying to show your account");
-             }
-       }
+  private String history(Customer customer, String request) throws Exception {
+    String[] historyCommand = request.split(" ");
+    try {
+      String accountName = historyCommand[1];
+      return customer.transactionRecord(accountName);
+    } catch (Exception e) {
+      throw new Exception("Something went wrong when trying to show your account");
+    }
+  }
 
   private String donateMoney(Customer customer, String request) throws Exception {
     String[] donateCommand = request.split(" ");
@@ -454,7 +461,7 @@ public class NewBank {
 
       //check transfer limit
       String checkKey = userId
-          .concat(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE).toString());
+          .concat(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
       Double todayTransfers = transferLimit.get(checkKey);
 
       if (!specialAuthorisation) {
@@ -472,7 +479,7 @@ public class NewBank {
       }
 
       // Finally if all checks are OK, the amount can be transferred
-      account.addTransaction("Payment made: "+ -amount);
+      account.addTransaction("Payment made: " + -amount);
       recipientAccount.addTransaction("Payment received: " + amount);
       account.setBalance(account.getBalance() - amount);
       recipientAccount.setBalance(recipientAccount.getBalance() + amount);
@@ -567,14 +574,19 @@ public class NewBank {
                 "the recipient name, followed by the recipient account name, and followed by the amount in decimal number.");
         out.println();
 
-				out.println("DONATE " + " : allows you to donate money from your account towards philanthropic initiatives. To do this : ");
-				out.println("Type DONATE in capital letters as shown, followed by a space, followed by your account name," +
-						" followed by the amount you wish to donate in decimal number");
-				out.println();
+        out.println("DONATE "
+            + " : allows you to donate money from your account towards philanthropic initiatives. To do this : ");
+        out.println(
+            "Type DONATE in capital letters as shown, followed by a space, followed by your account name,"
+                +
+                " followed by the amount you wish to donate in decimal number");
+        out.println();
 
-				out.println("HISTORY " + " : allows you to view transaction history of account. To do this : ");
-                                out.println("Type HISTORY in capital letters as shown, followed by a space, followed by your account name.");
-                                out.println();
+        out.println(
+            "HISTORY " + " : allows you to view transaction history of account. To do this : ");
+        out.println(
+            "Type HISTORY in capital letters as shown, followed by a space, followed by your account name.");
+        out.println();
 
         out.println("DELETEACCOUNT " + " : allows you to delete an account. To do this: ");
         out.println(
@@ -665,18 +677,18 @@ public class NewBank {
         return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
       }
 
-			//perform the move
-			if (customer.getBtcWallet().changeBitcoin(customer.getBtcWallet().getBtcEquivalent(amount))) {
-				account.setBalance(account.getBalance() - amount);
-				account.addTransaction("Bitcoin purchase: "+ -amount);
-			} else {
-				return "Error performing the transaction: Could not move the specified amount.";
-			}
-			return "Transaction complete: Account(" + account.toString() + "), BitcoinWallet(" + customer
-					.getBtcWallet().toString() + ")";
-		}
-		return "Error processing request: Customer or request are invalid.";
-	}
+      //perform the move
+      if (customer.getBtcWallet().changeBitcoin(customer.getBtcWallet().getBtcEquivalent(amount))) {
+        account.setBalance(account.getBalance() - amount);
+        account.addTransaction("Bitcoin purchase: " + -amount);
+      } else {
+        return "Error performing the transaction: Could not move the specified amount.";
+      }
+      return "Transaction complete: Account(" + account.toString() + "), BitcoinWallet(" + customer
+          .getBtcWallet().toString() + ")";
+    }
+    return "Error processing request: Customer or request are invalid.";
+  }
 
   /**
    * Allows a customer to sell bitcoin, receiving money into one of its accounts. If the customer
@@ -728,18 +740,19 @@ public class NewBank {
         return String.format("Insufficient balance for this transfer: %.2f", account.getBalance());
       }
 
-			//perform the move
-			if (customer.getBtcWallet().changeBitcoin(-amount)) {
-				account.setBalance(account.getBalance() + customer.getBtcWallet().getEquivalentToBtc(amount));
-				account.addTransaction("Bitcoin sale: " + amount);
-			} else {
-				return "Error performing the transaction: Could not move the specified amount.";
-			}
-			return "Transaction complete: Account(" + account.toString() + "), BitcoinWallet(" + customer
-					.getBtcWallet().toString() + ")";
-		}
-		return "Error processing request: Customer or request are invalid.";
-	}
+      //perform the move
+      if (customer.getBtcWallet().changeBitcoin(-amount)) {
+        account
+            .setBalance(account.getBalance() + customer.getBtcWallet().getEquivalentToBtc(amount));
+        account.addTransaction("Bitcoin sale: " + amount);
+      } else {
+        return "Error performing the transaction: Could not move the specified amount.";
+      }
+      return "Transaction complete: Account(" + account.toString() + "), BitcoinWallet(" + customer
+          .getBtcWallet().toString() + ")";
+    }
+    return "Error processing request: Customer or request are invalid.";
+  }
 
   /**
    * Allows a customer to transfer money from its own bitcoin wallet into another.
@@ -894,65 +907,66 @@ public class NewBank {
     return loansStrBuild.toString();
   }
 
-	/**
-	 * Borrow the full or partial amount from a microloan.
-	 * If the amount of the offered microloan is less than the requested amount, then the request should be rejected
-	 *
-	 * @param customer	The customer that the microloan is created from
-	 * @param request	The take microloan request as recorded from the CLI interface
-	 * @return 	"SUCCESS" if the pay request has been completed successfully. An error message will be
-	 * 			returned otherwise
-	 */
-	private String takeMicroLoan(Customer customer, String request) {
-		String[] requestParameterArr = request.split(" ");
-		// expected request format: TAKEMICROLOAN <Account> <MicroloanID> (<Amount>)
-		if (requestParameterArr.length < 3 || requestParameterArr.length > 4) {
-			return String.format(
-					"Expected the following format for the offer micro loan command:\n\n" +
-							"TAKEMICROLOAN <Account> <MicroloanID> (<Amount>)\n\n" +
-							"but the number of parameters found after OFFERMICROLOAN is %d",
-					requestParameterArr.length - 1
-			);
-		}
-		// Check if account exists
-		String accountName = requestParameterArr[1];
-		Account account = customer.getAccount(accountName);
-		if (account == null) {
-			return String.format("Account \"%s\" was not found", accountName);
-		}
-		// Check if microloan exists
-		String microLoanID = requestParameterArr[2];
-		MicroLoan microLoan = microLoans.get(UUID.fromString(microLoanID));
-		if (microLoan == null) {
-			return String.format("Microloan with ID: \"%s\" was not found", microLoanID);
-		}
-		double amount;
-		if (requestParameterArr.length == 4) {
-			try {
-				amount = Double.parseDouble(requestParameterArr[3]);
-			} catch (NumberFormatException ignored) {
-				return String.format("Invalid value for microloan amount: \"%s\"", requestParameterArr[2]);
-			}
-			// Check if there are sufficient funds in the microloan offering
-			if (amount > microLoan.getAmount()) {
-				return String.format("Insufficient microloan amount for this microloan: %.2f", microLoan.getAmount());
-			}
-		} else {
-			amount = microLoan.getAmount();
-		}
-		// Add a new microloan for the remainder if the full amount is not claimed
-		double remainder = microLoan.getAmount() - amount;
-		if (remainder > 0.001) {
-			MicroLoan microLoanRemainder = new MicroLoan(microLoan.getOwner(), remainder);
-			this.microLoans.put(microLoanRemainder.microLoanID.getKey(), microLoanRemainder);
-		}
-		// Claim the amount from the microloan
-		account.setBalance(account.getBalance() + amount);
-		account.addTransaction("MicroLoan: " + amount);
-		microLoan.setAmount(amount);
-		microLoan.assignToReceiver(customer);
-		return String.format("Successfully claimed a microloan for %.2f", amount);
-	}
+  /**
+   * Borrow the full or partial amount from a microloan. If the amount of the offered microloan is
+   * less than the requested amount, then the request should be rejected
+   *
+   * @param customer The customer that the microloan is created from
+   * @param request  The take microloan request as recorded from the CLI interface
+   * @return "SUCCESS" if the pay request has been completed successfully. An error message will be
+   * returned otherwise
+   */
+  private String takeMicroLoan(Customer customer, String request) {
+    String[] requestParameterArr = request.split(" ");
+    // expected request format: TAKEMICROLOAN <Account> <MicroloanID> (<Amount>)
+    if (requestParameterArr.length < 3 || requestParameterArr.length > 4) {
+      return String.format(
+          "Expected the following format for the offer micro loan command:\n\n" +
+              "TAKEMICROLOAN <Account> <MicroloanID> (<Amount>)\n\n" +
+              "but the number of parameters found after OFFERMICROLOAN is %d",
+          requestParameterArr.length - 1
+      );
+    }
+    // Check if account exists
+    String accountName = requestParameterArr[1];
+    Account account = customer.getAccount(accountName);
+    if (account == null) {
+      return String.format("Account \"%s\" was not found", accountName);
+    }
+    // Check if microloan exists
+    String microLoanID = requestParameterArr[2];
+    MicroLoan microLoan = microLoans.get(UUID.fromString(microLoanID));
+    if (microLoan == null) {
+      return String.format("Microloan with ID: \"%s\" was not found", microLoanID);
+    }
+    double amount;
+    if (requestParameterArr.length == 4) {
+      try {
+        amount = Double.parseDouble(requestParameterArr[3]);
+      } catch (NumberFormatException ignored) {
+        return String.format("Invalid value for microloan amount: \"%s\"", requestParameterArr[2]);
+      }
+      // Check if there are sufficient funds in the microloan offering
+      if (amount > microLoan.getAmount()) {
+        return String.format("Insufficient microloan amount for this microloan: %.2f",
+            microLoan.getAmount());
+      }
+    } else {
+      amount = microLoan.getAmount();
+    }
+    // Add a new microloan for the remainder if the full amount is not claimed
+    double remainder = microLoan.getAmount() - amount;
+    if (remainder > 0.001) {
+      MicroLoan microLoanRemainder = new MicroLoan(microLoan.getOwner(), remainder);
+      this.microLoans.put(microLoanRemainder.microLoanID.getKey(), microLoanRemainder);
+    }
+    // Claim the amount from the microloan
+    account.setBalance(account.getBalance() + amount);
+    account.addTransaction("MicroLoan: " + amount);
+    microLoan.setAmount(amount);
+    microLoan.assignToReceiver(customer);
+    return String.format("Successfully claimed a microloan for %.2f", amount);
+  }
 
   /**
    * Revokes a microloan the specified customer has offered and which has not been taken yet.

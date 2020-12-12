@@ -5,19 +5,19 @@ package newbank.server;
  */
 public abstract class BitcoinWallet {
 
-  public double getBitcoins() {
-    return bitcoins;
-  }
-
   private double bitcoins;
 
   public BitcoinWallet() {
     this.bitcoins = 0.0;
   }
 
+  public double getBitcoins() {
+    return bitcoins;
+  }
+
   /**
-   * Abstract method that determines the exchange rate of bitcoin and a currency specified
-   * in subclasses.
+   * Abstract method that determines the exchange rate of bitcoin and a currency specified in
+   * subclasses.
    *
    * @return The exchange rate 1 subclass currency equals [returnValue] bitcoins
    */
@@ -43,6 +43,7 @@ public abstract class BitcoinWallet {
 
   /**
    * Calculates the subclass currency equivalent of a certain amount of bitcoins.
+   *
    * @param btcAmount The amount of bitcoins
    * @return The equivalent subclass currency amount
    */
