@@ -66,6 +66,15 @@ public class Customer extends User {
 		}
 		return s.toString();
 	}
+	
+	public String transactionRecord(String accountName) {
+		for (Account f : accounts) {
+			if (f.getName().equals(accountName)) {
+				return "Your transaction history is: \n" + f.getTransactions()  + "\nyour balance is: " + f.getBalance();
+			}
+		}
+		return "Fail";
+	}
 
 	public String addAccount(Account account) {
 		accounts.add(account);
@@ -106,6 +115,8 @@ public class Customer extends User {
 						if(T.getName().equals(To)) {
 							F.setBalance(F.getBalance()-Amount);
 							T.setBalance(T.getBalance()+Amount);
+							F.addTransaction("Internal bank transfer: " + -Amount);
+							T.addTransaction("Internal bank transfer: " + Amount);
 							return "Money moved successfully";
 						}
 					}
@@ -120,6 +131,7 @@ public class Customer extends User {
 			if(f.getName().equals(from)){
 				if(amount < f.getBalance()) {
 					f.setBalance(f.getBalance() - amount);
+					f.addTransaction("Donation: " + -amount);
 					return String.format("Your donation of %.2f has been successfully processed thank you!", amount);
 				} else
 					return "Insufficient funds for this transaction: "+f.getBalance();
