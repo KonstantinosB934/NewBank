@@ -85,7 +85,7 @@ public class NewBank {
         }
 
         if (request.startsWith("PAY ")) {
-          return payAmountToOtherCustomer(customer, request, userId.getKey(), null);
+          return payAmountToOtherCustomer(customer, request, userId.getKey(), false);
         }
 
         if ("BUYBITCOIN".equals(request.substring(0, "BUYBITCOIN".length()))) {
@@ -266,7 +266,7 @@ public class NewBank {
         if (onBehalfOfUser != null && onBehalfOfUser instanceof Customer) {
           Customer onBehalfOfCustomer = (Customer) onBehalfOfUser;
           request = request.replaceFirst(" " + onBehalfOf, "");
-          return payAmountToOtherCustomer(onBehalfOfCustomer, request, onBehalfOf, bankEmployee);
+          return payAmountToOtherCustomer(onBehalfOfCustomer, request, onBehalfOf, true);
         }
       }
       return String.format(
@@ -281,20 +281,17 @@ public class NewBank {
    * the receiving customer or account cannot be identified or if there are no sufficient funds,
    * then the request should be rejected
    *
-   * @param customer     The customer that the pay amount is paid from
-   * @param request      The pay request as recorded from the CLI interface
-   * @param userId       Id used to check for transfer limits
-   * @param bankEmployee A bank employee that may process the transfer (no transfer limits
-   *                     respected)
+   * @param customer             The customer that the pay amount is paid from
+   * @param request              The pay request as recorded from the CLI interface
+   * @param userId               Id used to check for transfer limits
+   * @param specialAuthorisation Indicates if this transfer is specially authorised (no transfer
+   *                             limits respected)
    * @return "SUCCESS" if the pay request has been completed successfully. An error message will be
    * returned otherwise
    */
   private String payAmountToOtherCustomer(Customer customer, String request, String userId,
-      User bankEmployee) throws Exception {
+      boolean specialAuthorisation) throws Exception {
     String[] requestParameterArr = request.split(" ");
-
-    boolean SPECIAL_AUTHORISATION =
-        (bankEmployee != null) && (bankEmployee instanceof BankEmployee);
 
     try {
       // expected request format:
@@ -350,17 +347,19 @@ public class NewBank {
       String checkKey = userId
           .concat(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE).toString());
       Double todayTransfers = transferLimit.get(checkKey);
-      if (todayTransfers == null) {
-        transferLimit.put(checkKey, amount);
-        todayTransfers = amount;
-      } else {
-        todayTransfers += amount;
-        transferLimit.put(checkKey, todayTransfers);
-      }
-      if (!SPECIAL_AUTHORISATION && todayTransfers > 10000) {
-        return String.format(
-            "Payment would exceed the daily limit of £10,000: \"%.2f\". DENIED. Ask an employee to do the transfer for you.",
-            todayTransfers);
+
+      if (!specialAuthorisation) {
+        if (todayTransfers == null && amount <= 10000) {
+          transferLimit.put(checkKey, amount);
+          todayTransfers = amount;
+        } else if (todayTransfers != null && todayTransfers + amount <= 10000) {
+          todayTransfers += amount;
+          transferLimit.put(checkKey, todayTransfers);
+        } else {
+          return String.format(
+              "Payment would exceed the daily limit of £10,000: \"%.2f\". DENIED. Ask an employee to do the transfer for you.",
+              todayTransfers);
+        }
       }
 
       // Finally if all checks are OK, the amount can be transferred
