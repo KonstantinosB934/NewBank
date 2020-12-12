@@ -8,8 +8,8 @@ import java.util.Random;
 public class GBPBitcoinWallet extends BitcoinWallet {
 
   /**
-   * Method which implements an abstract method that determines the current exchange rate
-   * of the subclass currency (GBP in this subclass) to BTC.
+   * Method which implements an abstract method that determines the current exchange rate of the
+   * subclass currency (GBP in this subclass) to BTC.
    *
    * @return The amount of BTC per GBP
    */
@@ -17,6 +17,6 @@ public class GBPBitcoinWallet extends BitcoinWallet {
   public double getExchangeRate() {
     double base = 0.000069;
     int factor = new Random().nextInt(21) + 1;
-    return  base * factor;
+    return base * factor;
   }
 }

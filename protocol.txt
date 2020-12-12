@@ -26,10 +26,20 @@ Allows a customer to transfer money outside his/her accounts.
 Command: PAY <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>
 Returns: SUCCESS or a specific error message
 
+PAY
+Allows a bank employee to transfer money in behalf of a customer (can exceed daily transfer limits).
+Command: PAY <OnBehalfOfCustomer> <SourceCustomerAccount> <Destination-Person/Company> <DestinationAccount> <Amount>
+Returns: SUCCESS or a specific error message
+
 BUYBITCOIN
 Allows a customer to buy bitcoin with money from one of its accounts and store it
 inside its bitcoin wallet.
 Command: BUYBITCOIN <SourceCustomerAccount> <Amount>
+Returns: A transaction confirmation or error message
+
+SELLBITCOIN
+Allows a customer to sell bitcoin, receiving money into one of its accounts.
+Command: SELLBITCOIN <DestinationAccount> <Amount>
 Returns: A transaction confirmation or error message
 
 BITCOINPAY
@@ -55,4 +65,10 @@ Christina Keating	||	100.00	||	fe284033-b711-4304-9b68-87588587b589
 TAKEMICROLOAN
 Borrow the full or partial amount of an offered microloan.
 Command: TAKEMICROLOAN <Account> <MicroloanID> (<Amount>)
+Returns: SUCCESS or a specific error message
+
+REVOKEMICROLOAN
+Revokes a microloan the specified customer has offered and which has not been taken yet.
+The amount will be transferred back to the account specified.
+Command: REVOKEMICROLOAN <MicroLoanId> <Account>
 Returns: SUCCESS or a specific error message

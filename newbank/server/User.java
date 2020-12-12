@@ -6,21 +6,21 @@ public abstract class User {
   private String firstName;
   private String lastName;
 
-  public User(String password){
+  public User(String password) {
     this.password = password;
   }
 
-  public User(String password, String firstName, String lastName){
+  public User(String password, String firstName, String lastName) {
     this(password);
     this.firstName = firstName;
     this.lastName = lastName;
   }
 
-  public String getPassword(){
+  public String getPassword() {
     return password;
   }
 
-  public void setPassword(String newPassword){
+  public void setPassword(String newPassword) {
     password = newPassword;
   }
 

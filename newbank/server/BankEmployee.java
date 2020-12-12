@@ -6,7 +6,7 @@ public class BankEmployee extends User {
     super(password);
   }
 
-  public BankEmployee(String password, String firstName, String lastName){
+  public BankEmployee(String password, String firstName, String lastName) {
     super(password, firstName, lastName);
   }
 }
